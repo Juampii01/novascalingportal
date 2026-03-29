@@ -736,15 +736,7 @@ function OverviewContent() {
     `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
       {/* Header */}
-      <div
-        style={{
-          display: "flex",
-          alignItems: "flex-start",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "20px",
-        }}
-      >
+      <div className="ov-page-header">
         <div>
           <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", marginBottom: "10px", textTransform: "uppercase" }}>
             Resumen del mes
@@ -772,7 +764,7 @@ function OverviewContent() {
 
       {/* KPI Cards */}
       <div>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+        <div className="ov-metrics-header">
           <p style={{ ...SECTION_LABEL, marginBottom: 0 }}>Métricas clave</p>
           <button
             onClick={() => {

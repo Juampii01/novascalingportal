@@ -350,8 +350,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
   return (
     <ToastProvider>
     <style>{`
-      .dash-content { margin-left: 220px; }
-      .dash-main { padding: 32px; }
+      .dash-content { margin-left: 220px; overflow-x: hidden; min-width: 0; }
+      .dash-main { padding: 32px; overflow-x: hidden; }
       .dash-header { padding: 0 32px; }
       @media (max-width: 1023px) {
         .dash-content { margin-left: 0; }
