@@ -724,10 +724,14 @@ function OverviewContent() {
     <style>{`
       .ov-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
       .ov-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+      .ov-page-header { display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 20px; }
+      .ov-metrics-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
       @media (max-width: 767px) {
         .ov-grid-2 { grid-template-columns: 1fr; }
         .ov-grid-3 { grid-template-columns: 1fr; }
         .ov-title { font-size: clamp(20px, 5vw, 30px) !important; }
+        .ov-page-header { flex-direction: column; }
+        .ov-metrics-header { flex-direction: column; align-items: flex-start; gap: 12px; }
       }
     `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
