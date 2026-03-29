@@ -123,7 +123,7 @@ export default function LoginPage() {
               {[
                 { value: "100%", label: "Automatizado" },
                 { value: "Real time", label: "Data en vivo" },
-                { value: "1 vista", label: "Todo el pipeline" },
+                { value: "0 gaps", label: "Pipeline sin puntos ciegos" },
               ].map((s) => (
                 <div key={s.label}>
                   <div style={{ fontFamily: "Georgia, serif", fontSize: "20px", fontWeight: 400, color: "#c8c8c8", letterSpacing: "0.5px", marginBottom: "5px" }}>{s.value}</div>

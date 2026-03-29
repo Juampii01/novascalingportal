@@ -1,9 +1,98 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { DashboardLayout, useUserRole } from "@/components/dashboard-layout"
-import { SECTION_LABEL } from "@/lib/styles"
+import { SECTION_LABEL, CARD_P } from "@/lib/styles"
+
+const INPUT: React.CSSProperties = { width: "100%", background: "#111", border: "0.5px solid #1a1a1a", borderRadius: "6px", padding: "9px 12px", fontSize: "13px", fontFamily: "sans-serif", fontWeight: 300, color: "#f5f5f5", outline: "none", boxSizing: "border-box" }
+import { createClient } from "@/lib/supabaseClient"
+
+// ── Landing Config ────────────────────────────────────────────────────────────
+
+function LandingConfig() {
+  const [videoUrl, setVideoUrl]       = useState("")
+  const [calendlyUrl, setCalendlyUrl] = useState("")
+  const [loading, setLoading]         = useState(true)
+  const [saving, setSaving]           = useState(false)
+  const [saved, setSaved]             = useState(false)
+
+  useEffect(() => {
+    const supabase = createClient()
+    supabase.from("landing_config").select("video_url, calendly_url").limit(1).maybeSingle()
+      .then(({ data }) => {
+        if (data) { setVideoUrl(data.video_url ?? ""); setCalendlyUrl(data.calendly_url ?? "") }
+        setLoading(false)
+      })
+  }, [])
+
+  const handleSave = useCallback(async () => {
+    setSaving(true)
+    const supabase = createClient()
+    await supabase.from("landing_config").upsert({ id: "00000000-0000-0000-0000-000000000001", video_url: videoUrl, calendly_url: calendlyUrl, updated_at: new Date().toISOString() })
+    setSaving(false)
+    setSaved(true)
+    setTimeout(() => setSaved(false), 2500)
+  }, [videoUrl, calendlyUrl])
+
+  const LABEL_S: React.CSSProperties = { fontSize: "9px", color: "#555", fontFamily: "sans-serif", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "8px", display: "block" }
+
+  return (
+    <div style={{ ...CARD_P, display: "flex", flexDirection: "column", gap: "20px" }}>
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <div>
+          <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", textTransform: "uppercase", marginBottom: "4px" }}>
+            Landing pública
+          </p>
+          <p style={{ fontSize: "12px", fontFamily: "sans-serif", color: "#555", fontWeight: 300 }}>
+            Configuración de <a href="/home" target="_blank" style={{ color: "#666", textDecoration: "underline" }}>/home</a> — visible sin login
+          </p>
+        </div>
+        <button
+          onClick={handleSave}
+          disabled={saving || loading}
+          style={{
+            background: saved ? "rgba(34,197,94,0.1)" : "#22c55e",
+            color: saved ? "#22c55e" : "#000",
+            border: saved ? "0.5px solid rgba(34,197,94,0.3)" : "none",
+            borderRadius: "8px", padding: "9px 22px",
+            fontSize: "11px", fontFamily: "sans-serif", fontWeight: 500,
+            letterSpacing: "1px", cursor: saving ? "not-allowed" : "pointer",
+            opacity: saving ? 0.7 : 1, transition: "all 0.2s",
+            textTransform: "uppercase",
+          }}
+        >
+          {saved ? "Guardado ✓" : saving ? "Guardando…" : "Guardar"}
+        </button>
+      </div>
+
+      {loading ? (
+        <p style={{ fontSize: "12px", color: "#444", fontFamily: "sans-serif" }}>Cargando configuración…</p>
+      ) : (
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div>
+            <label style={LABEL_S}>URL del video (YouTube, Loom o Vimeo)</label>
+            <input
+              value={videoUrl}
+              onChange={(e) => setVideoUrl(e.target.value)}
+              placeholder="https://www.youtube.com/watch?v=..."
+              style={{ ...INPUT, width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+          <div>
+            <label style={LABEL_S}>URL de Calendly</label>
+            <input
+              value={calendlyUrl}
+              onChange={(e) => setCalendlyUrl(e.target.value)}
+              placeholder="https://calendly.com/tu-link/60min"
+              style={{ ...INPUT, width: "100%", boxSizing: "border-box" }}
+            />
+          </div>
+        </div>
+      )}
+    </div>
+  )
+}
 
 interface ClientSummary {
   clientId: string
@@ -266,6 +355,9 @@ function AdminContent() {
           ))}
         </div>
       )}
+
+      {/* Landing config */}
+      <LandingConfig />
 
       {/* Sort tabs */}
       {clients.length > 0 && (
