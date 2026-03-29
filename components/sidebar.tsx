@@ -28,7 +28,7 @@ const herramientasItems = [
 ]
 
 const configuracionItems = [
-  { name: "Perfil del cliente", href: "/profile" },
+  { name: "Mi perfil", href: "/profile" },
   { name: "Ajustes", href: "/settings" },
 ]
 

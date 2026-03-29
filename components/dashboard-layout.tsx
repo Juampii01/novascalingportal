@@ -48,6 +48,7 @@ function getRoleFromAccessToken(token: string | null | undefined): string | null
 }
 
 export function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const [authChecked, setAuthChecked] = useState(IS_DEMO) // demo skips async check
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [selectedMonth, setSelectedMonth] = useState<string>(() => {
     if (typeof window === "undefined") return new Date().toISOString().slice(0, 7)
@@ -147,6 +148,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
       if (!session) {
         router.replace("/login")
+        setAuthChecked(true)
         return
       }
 
@@ -166,6 +168,7 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       if (error || !data?.user) {
         await supabase.auth.signOut()
         router.replace("/login")
+        setAuthChecked(true)
         return
       }
 
@@ -208,6 +211,8 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
         setUserRole(jwtRole ?? null)
         setActiveClientId(null)
       }
+
+      setAuthChecked(true)
     }
 
     checkSession()
@@ -314,6 +319,32 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
       userRole,
       userEmail,
     }
+  }
+
+  if (!authChecked) {
+    return (
+      <div
+        style={{
+          minHeight: "100vh",
+          background: "#080808",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <div
+          style={{
+            width: "20px",
+            height: "20px",
+            border: "1.5px solid #1a1a1a",
+            borderTop: "1.5px solid #22c55e",
+            borderRadius: "50%",
+            animation: "spin 0.7s linear infinite",
+          }}
+        />
+        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
+      </div>
+    )
   }
 
   return (

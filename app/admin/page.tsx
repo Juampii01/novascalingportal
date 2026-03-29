@@ -45,7 +45,7 @@ function LandingConfig() {
             Landing pública
           </p>
           <p style={{ fontSize: "12px", fontFamily: "sans-serif", color: "#555", fontWeight: 300 }}>
-            Configuración de <a href="/home" target="_blank" style={{ color: "#666", textDecoration: "underline" }}>/home</a> — visible sin login
+            Configuración de <a href="/landingpage" target="_blank" style={{ color: "#666", textDecoration: "underline" }}>/landingpage</a> — visible sin login
           </p>
         </div>
         <button
