@@ -108,7 +108,7 @@ function SetterTab({ clientId }: { clientId: string | null }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div className="eod-tab-header">
         <div>
           <p style={SECTION_LABEL}>Setter · EOD Diario</p>
           <p style={{ fontSize: "13px", color: "#555", fontFamily: "sans-serif", marginTop: "4px" }}>
@@ -128,7 +128,7 @@ function SetterTab({ clientId }: { clientId: string | null }) {
       </div>
 
       {/* Monthly totals */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+      <div className="eod-grid-4">
         {[
           { label: "Aperturas", value: totals.aperturas, color: "#60a5fa" },
           { label: "Respuestas", value: totals.respuestas, rate: convRate(totals.respuestas, totals.aperturas), color: "#a78bfa" },
@@ -162,6 +162,7 @@ function SetterTab({ clientId }: { clientId: string | null }) {
         ) : entries.length === 0 ? (
           <p style={{ color: "#555", fontSize: "13px", fontFamily: "sans-serif" }}>Sin registros aún. Empezá hoy.</p>
         ) : (
+          <div className="eod-table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -197,6 +198,7 @@ function SetterTab({ clientId }: { clientId: string | null }) {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 
@@ -324,7 +326,7 @@ function CloserTab({ clientId }: { clientId: string | null }) {
     <div style={{ display: "flex", flexDirection: "column", gap: "24px" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+      <div className="eod-tab-header">
         <div>
           <p style={SECTION_LABEL}>Closer · EOD Diario</p>
           <p style={{ fontSize: "13px", color: "#555", fontFamily: "sans-serif", marginTop: "4px" }}>
@@ -344,7 +346,7 @@ function CloserTab({ clientId }: { clientId: string | null }) {
       </div>
 
       {/* Monthly totals */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px" }}>
+      <div className="eod-grid-4">
         {[
           { label: "Llamadas agendadas", value: fmt(totals.agendadas), color: "#60a5fa", raw: totals.agendadas },
           { label: "Asistencia", value: fmt(totals.asistidas), rate: convRate(totals.asistidas, totals.agendadas), color: "#f59e0b", raw: totals.asistidas },
@@ -378,6 +380,7 @@ function CloserTab({ clientId }: { clientId: string | null }) {
         ) : entries.length === 0 ? (
           <p style={{ color: "#555", fontSize: "13px", fontFamily: "sans-serif" }}>Sin registros aún. Empezá hoy.</p>
         ) : (
+          <div className="eod-table-wrap">
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -412,6 +415,7 @@ function CloserTab({ clientId }: { clientId: string | null }) {
               ))}
             </tbody>
           </table>
+          </div>
         )}
       </div>
 
@@ -530,7 +534,7 @@ function MonthlyTrackerTab({ clientId }: { clientId: string | null }) {
             </span>
           </div>
 
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "12px" }}>
+          <div className="eod-monthly-grid">
             {/* Setter block */}
             <div style={{ ...CARD_P, padding: "20px 24px" }}>
               <p style={{ fontSize: "9px", color: "#4ade80", fontFamily: "sans-serif", letterSpacing: "3px", textTransform: "uppercase", marginBottom: "16px" }}>
@@ -606,6 +610,17 @@ export default function EODPage() {
 
   return (
     <DashboardLayout>
+      <style>{`
+        .eod-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+        .eod-table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+        .eod-monthly-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .eod-tab-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        @media (max-width: 767px) {
+          .eod-grid-4 { grid-template-columns: 1fr 1fr; }
+          .eod-monthly-grid { grid-template-columns: 1fr; }
+          .eod-tab-header { flex-direction: column; gap: 12px; }
+        }
+      `}</style>
       <div style={{ display: "flex", flexDirection: "column", gap: "28px" }}>
 
         {/* Tab bar */}

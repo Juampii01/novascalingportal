@@ -718,6 +718,9 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
   type ChatMsg = { role: "user" | "assistant"; content: string }
   type ChatSession = { id: string; title: string | null; messages: ChatMsg[]; user_message_count: number; created_at: string; updated_at: string }
 
+  // ── Mobile chat toggle ──────────────────────────────────────────────────────
+  const [chatOpen, setChatOpen] = useState(false)
+
   // ── Chat state ──────────────────────────────────────────────────────────────
   const [sessions, setSessions] = useState<ChatSession[]>([])
   const [currentSession, setCurrentSession] = useState<ChatSession | null>(null)
@@ -1208,6 +1211,20 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
   )
 
   return (
+    <>
+    <style>{`
+      .acq-two-col { display: flex; gap: 24px; align-items: flex-start; }
+      .acq-chat-panel { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; }
+      .acq-chat-toggle { display: none; }
+      @media (max-width: 1023px) {
+        .acq-two-col { flex-direction: column; }
+        .acq-chat-panel { width: 100%; }
+      }
+      @media (max-width: 767px) {
+        .acq-chat-panel-collapsed { display: none; }
+        .acq-chat-toggle { display: flex; width: 100%; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
       {/* Progress */}
       <div style={{ ...CARD, padding: "20px 24px" }}>
@@ -1223,13 +1240,20 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
       </div>
 
       {/* Two-column layout: grid + chat */}
-      <div style={{ display: "flex", gap: "24px", alignItems: "flex-start" }}>
+      <div className="acq-two-col">
 
       {/* Left: Grid */}
       <div style={{ flex: "1 1 0", minWidth: 0 }}>
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
           <p style={{ ...SECTION_LABEL, marginBottom: 0 }}>Calendario de contenido</p>
           <div style={{ display: "flex", gap: "8px" }}>
+            <button
+              className="acq-chat-toggle"
+              onClick={() => setChatOpen(o => !o)}
+              style={{ alignItems: "center", gap: "6px", background: chatOpen ? "rgba(34,197,94,0.08)" : "transparent", border: `0.5px solid ${chatOpen ? "rgba(34,197,94,0.3)" : "#222"}`, borderRadius: "6px", padding: "6px 12px", fontSize: "9px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "2px", color: chatOpen ? "#4ade80" : "#666", cursor: "pointer", textTransform: "uppercase" }}
+            >
+              ✦ {chatOpen ? "Cerrar IA" : "Estratega IA"}
+            </button>
             <button
               onClick={openAiModal}
               style={{ background: "rgba(34,197,94,0.12)", border: "0.5px solid rgba(34,197,94,0.4)", borderRadius: "6px", padding: "6px 16px", fontSize: "9px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "2px", color: "#4ade80", cursor: "pointer", textTransform: "uppercase" }}
@@ -1371,7 +1395,7 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
       </div>{/* end left */}
 
       {/* Right: Chat panel */}
-      <div style={{ width: "340px", flexShrink: 0, display: "flex", flexDirection: "column", background: "#0d0d0d", border: "0.5px solid #111", borderRadius: "12px", overflow: "hidden", height: "600px" }}>
+      <div className={`acq-chat-panel${!chatOpen ? " acq-chat-panel-collapsed" : ""}`} style={{ background: "#0d0d0d", border: "0.5px solid #111", borderRadius: "12px", overflow: "hidden", height: "600px" }}>
         {/* Chat header */}
         <div style={{ padding: "14px 16px", borderBottom: "0.5px solid #111", display: "flex", alignItems: "center", gap: "10px" }}>
           <span style={{ fontSize: "13px", color: "#4ade80" }}>✦</span>
@@ -1784,6 +1808,7 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
         </div>
       </DataModal>
     </div>
+    </>
   )
 }
 

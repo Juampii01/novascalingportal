@@ -624,12 +624,6 @@ function AuditContent() {
 
         <div style={{ padding: "20px 24px", display: "flex", flexDirection: "column", gap: "0" }}>
           <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
-            <button
-              onClick={autoSelectRandom}
-              style={{ padding: "10px 20px", borderRadius: "8px", border: "0.5px solid #222", background: "transparent", color: "#888", fontSize: "11px", fontFamily: "sans-serif", letterSpacing: "1px", cursor: "pointer", transition: "all 0.2s" }}
-            >
-              Seleccionar al azar
-            </button>
             {/* CAMBIO 3: deshabilitar si < 5 respuestas */}
             <button
               onClick={generateAIResponse}
