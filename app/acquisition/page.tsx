@@ -1996,21 +1996,23 @@ function AcquisitionContent() {
 
       {/* Tabs */}
       <Tabs defaultValue="ads">
-        <TabsList className="acq-tablist" style={{ background: "#0d0d0d", border: "0.5px solid #111", borderRadius: "8px", padding: "4px", gap: "4px" }}>
-          {[
-            { value: "ads",       label: "Follow Me Ads" },
-            { value: "manychat",  label: "ManyChat"      },
-            { value: "contenido", label: "Contenido"     },
-          ].map((tab) => (
-            <TabsTrigger
-              key={tab.value}
-              value={tab.value}
-              style={{ fontSize: "11px", fontFamily: "sans-serif", fontWeight: 400, letterSpacing: "2px", textTransform: "uppercase", padding: "8px 20px", borderRadius: "6px" }}
-            >
-              {tab.label}
-            </TabsTrigger>
-          ))}
-        </TabsList>
+        <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" as any, scrollbarWidth: "none" as any }}>
+          <TabsList style={{ background: "#0d0d0d", border: "0.5px solid #111", borderRadius: "8px", padding: "4px", gap: "4px", width: "max-content", minWidth: "100%" }}>
+            {[
+              { value: "ads",       label: "Follow Me Ads" },
+              { value: "manychat",  label: "ManyChat"      },
+              { value: "contenido", label: "Contenido"     },
+            ].map((tab) => (
+              <TabsTrigger
+                key={tab.value}
+                value={tab.value}
+                style={{ fontSize: "11px", fontFamily: "sans-serif", fontWeight: 400, letterSpacing: "2px", textTransform: "uppercase", padding: "8px 20px", borderRadius: "6px" }}
+              >
+                {tab.label}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </div>
 
         <TabsContent value="ads" style={{ marginTop: "24px" }}>
           <FollowMeAdsTab adsData={adsData} clientId={clientId} />
