@@ -1216,13 +1216,18 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
       .acq-two-col { display: flex; gap: 24px; align-items: flex-start; }
       .acq-chat-panel { width: 340px; flex-shrink: 0; display: flex; flex-direction: column; }
       .acq-chat-toggle { display: none; }
+      .acq-content-toolbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+      .acq-content-toolbar-btns { display: flex; gap: 8px; flex-shrink: 0; }
       @media (max-width: 1023px) {
         .acq-two-col { flex-direction: column; }
         .acq-chat-panel { width: 100%; }
       }
       @media (max-width: 767px) {
         .acq-chat-panel-collapsed { display: none; }
-        .acq-chat-toggle { display: flex; width: 100%; }
+        .acq-chat-toggle { display: flex; }
+        .acq-content-toolbar { flex-direction: column; align-items: flex-start; gap: 10px; }
+        .acq-content-toolbar-btns { width: 100%; flex-wrap: wrap; }
+        .acq-content-toolbar-btns button { flex: 1; justify-content: center; }
       }
     `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
@@ -1244,9 +1249,9 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
 
       {/* Left: Grid */}
       <div style={{ flex: "1 1 0", minWidth: 0 }}>
-        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "16px" }}>
+        <div className="acq-content-toolbar">
           <p style={{ ...SECTION_LABEL, marginBottom: 0 }}>Calendario de contenido</p>
-          <div style={{ display: "flex", gap: "8px" }}>
+          <div className="acq-content-toolbar-btns">
             <button
               className="acq-chat-toggle"
               onClick={() => setChatOpen(o => !o)}
@@ -1888,7 +1893,8 @@ function AcquisitionContent() {
       .acq-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
       .acq-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
       .acq-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-      .acq-tablist { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+      .acq-tablist { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; scrollbar-width: none; }
+      .acq-tablist::-webkit-scrollbar { display: none; }
       .acq-table-wrap { overflow-x: auto; }
       @media (max-width: 767px) {
         .acq-grid-2 { grid-template-columns: 1fr; }
