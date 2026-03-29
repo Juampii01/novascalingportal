@@ -720,6 +720,16 @@ function OverviewContent() {
   })
 
   return (
+    <>
+    <style>{`
+      .ov-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .ov-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+      @media (max-width: 767px) {
+        .ov-grid-2 { grid-template-columns: 1fr; }
+        .ov-grid-3 { grid-template-columns: 1fr; }
+        .ov-title { font-size: clamp(20px, 5vw, 30px) !important; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
       {/* Header */}
       <div
@@ -736,6 +746,7 @@ function OverviewContent() {
             Resumen del mes
           </p>
           <h1
+            className="ov-title"
             style={{
               fontFamily: "Georgia, serif",
               fontSize: "30px",
@@ -921,7 +932,7 @@ function OverviewContent() {
       >
         {/* Período */}
         <FormSection label="Período">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-2">
             <Field label="Mes">
               <select value={monthForm.mes} onChange={(e) => setMonthForm((f) => ({ ...f, mes: e.target.value }))} style={{ ...INPUT, cursor: "pointer" }}>
                 {MONTHS_ES.map((m, i) => <option key={i} value={String(i + 1)}>{m}</option>)}
@@ -935,7 +946,7 @@ function OverviewContent() {
 
         {/* Financiero */}
         <FormSection label="Financiero">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-2">
             <Field label="Cash Collected ($)"><input type="number" value={monthForm.cash_collected} onChange={(e) => setMonthForm((f) => ({ ...f, cash_collected: e.target.value }))} style={INPUT} placeholder="48500" /></Field>
             <Field label="Revenue Share ($)"><input type="number" value={monthForm.revenue_share} onChange={(e) => setMonthForm((f) => ({ ...f, revenue_share: e.target.value }))} style={INPUT} placeholder="14550" /></Field>
             <Field label="Revenue Total ($)"><input type="number" value={monthForm.total_revenue} onChange={(e) => setMonthForm((f) => ({ ...f, total_revenue: e.target.value }))} style={INPUT} placeholder="60000" /></Field>
@@ -948,7 +959,7 @@ function OverviewContent() {
 
         {/* Ventas */}
         <FormSection label="Ventas">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-3">
             <Field label="Llamadas agendadas"><input type="number" value={monthForm.calls_booked} onChange={(e) => setMonthForm((f) => ({ ...f, calls_booked: e.target.value }))} style={INPUT} placeholder="23" /></Field>
             <Field label="Llamadas atendidas"><input type="number" value={monthForm.calls_attended} onChange={(e) => setMonthForm((f) => ({ ...f, calls_attended: e.target.value }))} style={INPUT} placeholder="18" /></Field>
             <Field label="Calificadas"><input type="number" value={monthForm.qualified_calls} onChange={(e) => setMonthForm((f) => ({ ...f, qualified_calls: e.target.value }))} style={INPUT} placeholder="12" /></Field>
@@ -961,7 +972,7 @@ function OverviewContent() {
 
         {/* Adquisición */}
         <FormSection label="Adquisición">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-2">
             <Field label="Seguidores nuevos"><input type="number" value={monthForm.new_followers} onChange={(e) => setMonthForm((f) => ({ ...f, new_followers: e.target.value }))} style={INPUT} placeholder="3240" /></Field>
             <Field label="Conversaciones ManyChat"><input type="number" value={monthForm.total_conversations} onChange={(e) => setMonthForm((f) => ({ ...f, total_conversations: e.target.value }))} style={INPUT} placeholder="580" /></Field>
             <Field label="Aplicaciones"><input type="number" value={monthForm.aplications} onChange={(e) => setMonthForm((f) => ({ ...f, aplications: e.target.value }))} style={INPUT} placeholder="45" /></Field>
@@ -971,7 +982,7 @@ function OverviewContent() {
 
         {/* Contenido corto */}
         <FormSection label="Contenido (Short / Reels)">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-3">
             <Field label="Seguidores totales"><input type="number" value={monthForm.short_followers} onChange={(e) => setMonthForm((f) => ({ ...f, short_followers: e.target.value }))} style={INPUT} placeholder="28400" /></Field>
             <Field label="Alcance"><input type="number" value={monthForm.short_reach} onChange={(e) => setMonthForm((f) => ({ ...f, short_reach: e.target.value }))} style={INPUT} placeholder="120000" /></Field>
             <Field label="Posts publicados"><input type="number" value={monthForm.short_posts} onChange={(e) => setMonthForm((f) => ({ ...f, short_posts: e.target.value }))} style={INPUT} placeholder="20" /></Field>
@@ -980,7 +991,7 @@ function OverviewContent() {
 
         {/* YouTube */}
         <FormSection label="YouTube">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-3">
             <Field label="Suscriptores totales"><input type="number" value={monthForm.yt_subscribers} onChange={(e) => setMonthForm((f) => ({ ...f, yt_subscribers: e.target.value }))} style={INPUT} placeholder="4200" /></Field>
             <Field label="Suscriptores nuevos"><input type="number" value={monthForm.yt_new_subscribers} onChange={(e) => setMonthForm((f) => ({ ...f, yt_new_subscribers: e.target.value }))} style={INPUT} placeholder="320" /></Field>
             <Field label="Views"><input type="number" value={monthForm.yt_views} onChange={(e) => setMonthForm((f) => ({ ...f, yt_views: e.target.value }))} style={INPUT} placeholder="18000" /></Field>
@@ -992,7 +1003,7 @@ function OverviewContent() {
 
         {/* Email */}
         <FormSection label="Email">
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+          <div className="ov-grid-2">
             <Field label="Suscriptores totales"><input type="number" value={monthForm.email_subscribers} onChange={(e) => setMonthForm((f) => ({ ...f, email_subscribers: e.target.value }))} style={INPUT} placeholder="2800" /></Field>
             <Field label="Suscriptores nuevos"><input type="number" value={monthForm.email_new_subscribers} onChange={(e) => setMonthForm((f) => ({ ...f, email_new_subscribers: e.target.value }))} style={INPUT} placeholder="180" /></Field>
           </div>
@@ -1028,6 +1039,7 @@ function OverviewContent() {
         )}
       </DataModal>
     </div>
+    </>
   )
 }
 

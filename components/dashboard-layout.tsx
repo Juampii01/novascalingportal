@@ -349,6 +349,18 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
 
   return (
     <ToastProvider>
+    <style>{`
+      .dash-content { margin-left: 220px; }
+      .dash-main { padding: 32px; }
+      .dash-header { padding: 0 32px; }
+      @media (max-width: 1023px) {
+        .dash-content { margin-left: 0; }
+        .dash-main { padding: 20px 16px; }
+      }
+      @media (max-width: 767px) {
+        .dash-header { padding: 0 16px; }
+      }
+    `}</style>
     <div
       className="dark"
       style={{
@@ -364,12 +376,12 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           flex: 1,
           display: "flex",
           flexDirection: "column",
-          marginLeft: "220px",
         }}
-        className="max-lg:ml-0"
+        className="dash-content"
       >
         {/* Header */}
         <header
+          className="dash-header"
           style={{
             position: "sticky",
             top: 0,
@@ -379,7 +391,6 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            padding: "0 32px",
             height: "56px",
           }}
         >
@@ -647,9 +658,9 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
               <RealtimeAlertsListener clientId={activeClientId} />
               <FloatingChat />
               <main
+                className="dash-main"
                 style={{
                   flex: 1,
-                  padding: "32px",
                 }}
               >
                 {children}

@@ -126,14 +126,25 @@ function TraceabilityContent() {
     .slice(0, 3)
 
   return (
+    <>
+    <style>{`
+      .trc-header { display: flex; align-items: flex-start; justify-content: space-between; }
+      .trc-podium { display: grid; grid-template-columns: 1fr 1.2fr 1fr; gap: 12px; align-items: end; }
+      .trc-table-wrap { overflow-x: auto; }
+      @media (max-width: 767px) {
+        .trc-header { flex-direction: column; gap: 16px; align-items: flex-start; }
+        .trc-podium { grid-template-columns: 1fr; }
+        .trc-title { font-size: clamp(20px, 5vw, 30px) !important; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-start", justifyContent: "space-between" }}>
+      <div className="trc-header">
         <div>
           <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", marginBottom: "10px", textTransform: "uppercase" }}>
             Inteligencia comercial
           </p>
-          <h1 style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
+          <h1 className="trc-title" style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
             Trazabilidad
           </h1>
         </div>
@@ -162,7 +173,7 @@ function TraceabilityContent() {
       {/* Podio top ángulos */}
       <div>
         <p style={SECTION_LABEL}>Top ángulos del mes</p>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr 1fr", gap: "12px", alignItems: "end" }}>
+        <div className="trc-podium">
           {topAngles[1] && (
             <AngleCard
               angle={topAngles[1].angle}
@@ -223,7 +234,7 @@ function TraceabilityContent() {
           </div>
         </div>
 
-        <div style={{ ...CARD_P, padding: 0, overflow: "hidden" }}>
+        <div className="trc-table-wrap" style={{ ...CARD_P, padding: 0, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -314,6 +325,7 @@ function TraceabilityContent() {
         </div>
       )}
     </div>
+    </>
   )
 }
 

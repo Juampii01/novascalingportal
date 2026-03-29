@@ -121,7 +121,7 @@ function FollowMeAdsTab({
             + Agregar creativo
           </button>
         </div>
-        <div style={{ ...CARD, overflow: "hidden" }}>
+        <div className="acq-table-wrap" style={{ ...CARD, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -155,7 +155,7 @@ function FollowMeAdsTab({
         <Field label="Nombre del creativo">
           <input value={adsForm.creative_name} onChange={(e) => setAds("creative_name", e.target.value)} style={INPUT} placeholder="Historia con dolor — mamá que no puede pagar" />
         </Field>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-2">
           <Field label="Inversión ($)">
             <input type="number" value={adsForm.spend} onChange={(e) => setAds("spend", e.target.value)} style={INPUT} placeholder="980" />
           </Field>
@@ -163,7 +163,7 @@ function FollowMeAdsTab({
             <input type="number" value={adsForm.followers_gained} onChange={(e) => setAds("followers_gained", e.target.value)} style={INPUT} placeholder="1127" />
           </Field>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-3">
           <Field label="CTR (%)">
             <input type="number" step="0.1" value={adsForm.ctr} onChange={(e) => setAds("ctr", e.target.value)} style={INPUT} placeholder="4.2" />
           </Field>
@@ -174,7 +174,7 @@ function FollowMeAdsTab({
             <input type="number" value={adsForm.followers_per_day} onChange={(e) => setAds("followers_per_day", e.target.value)} style={INPUT} placeholder="48" />
           </Field>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-3">
           <Field label="Estado">
             <select value={adsForm.status} onChange={(e) => setAds("status", e.target.value)} style={{ ...INPUT, cursor: "pointer" }}>
               <option value="winner">Winner</option>
@@ -400,7 +400,7 @@ function ManychatTab({
         </div>
       )}
       <DataModal open={mcModal} onClose={() => setMcModal(false)} title="Pipeline ManyChat" subtitle="Se guarda en manychat_pipeline." onSubmit={handleSaveMC} loading={mcSaving}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-2">
           <Field label="Período inicio"><input type="date" value={mcForm.period_start} onChange={(e) => setMc("period_start", e.target.value)} style={INPUT} /></Field>
           <Field label="Período fin"><input type="date" value={mcForm.period_end} onChange={(e) => setMc("period_end", e.target.value)} style={INPUT} /></Field>
         </div>
@@ -435,7 +435,7 @@ function ManychatTab({
             </button>
           </div>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "16px" }}>
+        <div className="acq-grid-4">
           <MetricCard label="Leads nuevos" value={data.newConversations} />
           <MetricCard label="Leads calificados" value={data.qualifiedLeads} />
           <MetricCard label="Descalificados" value={data.unqualifiedLeads} />
@@ -448,7 +448,7 @@ function ManychatTab({
       </div>
 
       {/* Charts */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div className="acq-charts">
         {/* Donut */}
         <div style={{ ...CARD, padding: "24px" }}>
           <p style={SECTION_LABEL}>Leads calificados vs no calificados</p>
@@ -505,7 +505,7 @@ function ManychatTab({
 
       {/* ManyChat Modal */}
       <DataModal open={mcModal} onClose={() => setMcModal(false)} title="Pipeline ManyChat" subtitle="Se guarda en manychat_pipeline (upsert por período)." onSubmit={handleSaveMC} loading={mcSaving}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-2">
           <Field label="Período inicio">
             <input type="date" value={mcForm.period_start} onChange={(e) => setMc("period_start", e.target.value)} style={INPUT} />
           </Field>
@@ -513,7 +513,7 @@ function ManychatTab({
             <input type="date" value={mcForm.period_end} onChange={(e) => setMc("period_end", e.target.value)} style={INPUT} />
           </Field>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-2">
           <Field label="Conversaciones nuevas">
             <input type="number" value={mcForm.new_conversations} onChange={(e) => setMc("new_conversations", e.target.value)} style={INPUT} placeholder="580" />
           </Field>
@@ -521,7 +521,7 @@ function ManychatTab({
             <input type="number" value={mcForm.response_rate} onChange={(e) => setMc("response_rate", e.target.value)} style={INPUT} placeholder="74" />
           </Field>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-2">
           <Field label="Calificados">
             <input type="number" value={mcForm.qualified_leads} onChange={(e) => setMc("qualified_leads", e.target.value)} style={INPUT} placeholder="87" />
           </Field>
@@ -529,7 +529,7 @@ function ManychatTab({
             <input type="number" value={mcForm.unqualified_leads} onChange={(e) => setMc("unqualified_leads", e.target.value)} style={INPUT} placeholder="164" />
           </Field>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+        <div className="acq-grid-3">
           <Field label="Calendario enviado">
             <input type="number" value={mcForm.calendar_sent} onChange={(e) => setMc("calendar_sent", e.target.value)} style={INPUT} placeholder="45" />
           </Field>
@@ -545,7 +545,7 @@ function ManychatTab({
         </Field>
         <div>
           <p style={{ fontSize: "9px", color: "#555", fontFamily: "sans-serif", letterSpacing: "2px", textTransform: "uppercase", marginBottom: "10px" }}>Conversaciones por día</p>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: "8px" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(40px, 1fr))", gap: "8px", overflowX: "auto" }}>
             {DAYS_ES.map((day, i) => (
               <div key={day}>
                 <p style={{ fontSize: "8px", color: "#333", fontFamily: "sans-serif", letterSpacing: "1px", textAlign: "center", marginBottom: "4px" }}>{day}</p>
@@ -1158,7 +1158,7 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
 
   const PieceForm = () => (
     <>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+      <div className="acq-grid-2">
         <Field label="Día">
           <select value={form.day} onChange={(e) => setF("day", e.target.value)} style={{ ...INPUT, cursor: "pointer" }}>
             {DAYS_CONTENT.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -1179,7 +1179,7 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
       <Field label="Ángulo">
         <input value={form.angle} onChange={(e) => setF("angle", e.target.value)} style={INPUT} placeholder="El problema no es la audiencia, es el posicionamiento" />
       </Field>
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px" }}>
+      <div className="acq-grid-3">
         <Field label="Formato">
           <select value={form.format} onChange={(e) => setF("format", e.target.value)} style={{ ...INPUT, cursor: "pointer" }}>
             {FORMATS.map((f) => <option key={f} value={f}>{f}</option>)}
@@ -1690,7 +1690,8 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
                       const catColor = categoryColors[p.category] ?? "#555"
                       return (
                         <div key={i} style={{ background: "#080808", border: `0.5px solid ${catColor}20`, borderRadius: "10px", padding: "14px 16px", display: "flex", flexDirection: "column", gap: "10px" }}>
-                          <div style={{ display: "grid", gridTemplateColumns: "100px 1fr 130px 120px 90px 60px", gap: "10px", alignItems: "center" }}>
+                          <div style={{ overflowX: "auto" }}>
+                          <div style={{ display: "grid", gridTemplateColumns: "100px 1fr 130px 120px 90px 60px", gap: "10px", alignItems: "center", minWidth: "580px" }}>
                             {/* Day */}
                             <select value={p.day} onChange={(e) => updatePreview(i, "day", e.target.value)} style={{ ...INPUT, fontSize: "11px", padding: "5px 8px", cursor: "pointer" }}>
                               {DAYS_CONTENT.map((d) => <option key={d} value={d}>{d}</option>)}
@@ -1718,6 +1719,7 @@ function ContenidoTab({ clientId, selectedMonth }: { clientId: string | null; se
                             >
                               {p.ads_candidate ? "ADS ✓" : "ADS"}
                             </button>
+                          </div>
                           </div>
                           {/* Hook / angle / notes row */}
                           {(p.hook || p.angle || p.notes) && (
@@ -1855,11 +1857,30 @@ function AcquisitionContent() {
   }
 
   return (
+    <>
+    <style>{`
+      .acq-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .acq-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+      .acq-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+      .acq-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .acq-tablist { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; white-space: nowrap; }
+      .acq-table-wrap { overflow-x: auto; }
+      @media (max-width: 767px) {
+        .acq-grid-2 { grid-template-columns: 1fr; }
+        .acq-grid-3 { grid-template-columns: 1fr; }
+        .acq-grid-4 { grid-template-columns: 1fr 1fr; }
+        .acq-charts { grid-template-columns: 1fr; }
+        .acq-title { font-size: clamp(20px, 5vw, 30px) !important; }
+      }
+      @media (max-width: 479px) {
+        .acq-grid-4 { grid-template-columns: 1fr; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
       {/* Header */}
       <div>
         <p style={SECTION_LABEL}>Sistema de adquisición</p>
-        <h1 style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
+        <h1 className="acq-title" style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
           Adquisición
         </h1>
       </div>
@@ -1944,7 +1965,7 @@ function AcquisitionContent() {
 
       {/* Tabs */}
       <Tabs defaultValue="ads">
-        <TabsList style={{ background: "#0d0d0d", border: "0.5px solid #111", borderRadius: "8px", padding: "4px", gap: "4px" }}>
+        <TabsList className="acq-tablist" style={{ background: "#0d0d0d", border: "0.5px solid #111", borderRadius: "8px", padding: "4px", gap: "4px" }}>
           {[
             { value: "ads",       label: "Follow Me Ads" },
             { value: "manychat",  label: "ManyChat"      },
@@ -1971,6 +1992,7 @@ function AcquisitionContent() {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   )
 }
 

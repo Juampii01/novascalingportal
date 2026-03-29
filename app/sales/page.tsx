@@ -171,13 +171,24 @@ function SalesContent() {
   const filtered = stageFilter === "todos" ? data.leads : data.leads.filter((l) => l.stage === stageFilter)
 
   return (
+    <>
+    <style>{`
+      .sales-calc-chart { display: grid; grid-template-columns: 1fr 1.6fr; gap: 20px; align-items: start; }
+      .sales-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .sales-table-wrap { overflow-x: auto; }
+      @media (max-width: 767px) {
+        .sales-calc-chart { grid-template-columns: 1fr; }
+        .sales-grid-2 { grid-template-columns: 1fr; }
+        .sales-title { font-size: clamp(20px, 5vw, 30px) !important; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
       {/* Header */}
       <div>
         <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", marginBottom: "10px", textTransform: "uppercase" }}>
           Resultados comerciales
         </p>
-        <h1 style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
+        <h1 className="sales-title" style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
           Ventas
         </h1>
       </div>
@@ -200,7 +211,7 @@ function SalesContent() {
       </div>
 
       {/* Calculator + Chart */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: "20px", alignItems: "start" }}>
+      <div className="sales-calc-chart">
         <RevenueShareCalculator defaultAmount={data.cashCollected} defaultPct={30} />
 
         <div style={CARD_P}>
@@ -259,7 +270,7 @@ function SalesContent() {
           </div>
         </div>
 
-        <div style={{ ...CARD_P, padding: 0, overflow: "hidden" }}>
+        <div className="sales-table-wrap" style={{ ...CARD_P, padding: 0, overflow: "hidden" }}>
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
@@ -345,7 +356,7 @@ function SalesContent() {
         <Field label="Ángulo de origen">
           <input value={leadForm.origin_angle} onChange={(e) => setLead("origin_angle", e.target.value)} style={INPUT} placeholder="Historia con dolor" />
         </Field>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="sales-grid-2">
           <Field label="Categoría">
             <select value={leadForm.origin_category} onChange={(e) => setLead("origin_category", e.target.value)} style={{ ...INPUT, cursor: "pointer" }}>
               {["Problema", "Solución", "Producto", "Mentalidad"].map((c) => <option key={c} value={c}>{c}</option>)}
@@ -390,6 +401,7 @@ function SalesContent() {
         )}
       </DataModal>
     </div>
+    </>
   )
 }
 

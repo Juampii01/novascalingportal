@@ -69,7 +69,7 @@ function LandingConfig() {
       {loading ? (
         <p style={{ fontSize: "12px", color: "#444", fontFamily: "sans-serif" }}>Cargando configuración…</p>
       ) : (
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
+        <div className="adm-grid-2" style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px" }}>
           <div>
             <label style={LABEL_S}>URL del video (YouTube, Loom o Vimeo)</label>
             <input
@@ -202,7 +202,7 @@ function ClientCard({ client, onSelect }: { client: ClientSummary; onSelect: (id
       </div>
 
       {/* KPI row */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "14px" }}>
+      <div className="adm-client-kpi">
         <div>
           <p style={{ fontSize: "8px", fontFamily: "sans-serif", color: "#444", letterSpacing: "1.5px", textTransform: "uppercase", marginBottom: "5px" }}>Revenue</p>
           <div style={{ display: "flex", alignItems: "baseline", gap: "5px" }}>
@@ -314,22 +314,37 @@ function AdminContent() {
   const alertClients = clients.filter((c) => c.healthScore > 0 && c.healthScore < 50).length
 
   return (
+    <>
+    <style>{`
+      .adm-header { display: flex; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; gap: 16px; }
+      .adm-search { width: 220px; }
+      .adm-sort-tabs { display: flex; overflow-x: auto; -webkit-overflow-scrolling: touch; border-bottom: 0.5px solid #111; }
+      .adm-client-kpi { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+      @media (max-width: 767px) {
+        .adm-header { flex-direction: column; align-items: flex-start; }
+        .adm-search { width: 100% !important; }
+        .adm-title { font-size: clamp(20px, 5vw, 28px) !important; }
+        .adm-client-kpi { grid-template-columns: 1fr 1fr; gap: 10px; }
+        .adm-grid-2 { grid-template-columns: 1fr !important; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "36px" }}>
 
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", flexWrap: "wrap", gap: "16px" }}>
+      <div className="adm-header">
         <div>
           <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", textTransform: "uppercase", marginBottom: "10px" }}>
             Admin · Vista global
           </p>
-          <h1 style={{ fontFamily: "Georgia, serif", fontSize: "28px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "-0.5px" }}>
+          <h1 className="adm-title" style={{ fontFamily: "Georgia, serif", fontSize: "28px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "-0.5px" }}>
             Todos los clientes
           </h1>
         </div>
         <input
           value={search} onChange={(e) => setSearch(e.target.value)}
           placeholder="Buscar cliente…"
-          style={{ background: "#0d0d0d", border: "0.5px solid #1a1a1a", borderRadius: "8px", padding: "10px 16px", color: "#f5f5f5", fontSize: "12px", fontFamily: "sans-serif", outline: "none", width: "220px", transition: "border-color 0.2s" }}
+          className="adm-search"
+          style={{ background: "#0d0d0d", border: "0.5px solid #1a1a1a", borderRadius: "8px", padding: "10px 16px", color: "#f5f5f5", fontSize: "12px", fontFamily: "sans-serif", outline: "none", transition: "border-color 0.2s" }}
           onFocus={(e) => (e.currentTarget.style.borderColor = "rgba(34,197,94,0.3)")}
           onBlur={(e)  => (e.currentTarget.style.borderColor = "#1a1a1a")}
         />
@@ -361,7 +376,7 @@ function AdminContent() {
 
       {/* Sort tabs */}
       {clients.length > 0 && (
-        <div style={{ display: "flex", borderBottom: "0.5px solid #111" }}>
+        <div className="adm-sort-tabs">
           {(["health", "revenue", "activity", "name"] as const).map((s) => {
             const labels = { health: "Health", revenue: "Revenue", activity: "Actividad EOD", name: "Nombre" }
             return (
@@ -415,6 +430,7 @@ function AdminContent() {
         )}
       </div>
     </div>
+    </>
   )
 }
 

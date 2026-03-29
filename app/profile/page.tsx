@@ -239,13 +239,19 @@ function ProfileContent() {
   }
 
   return (
+    <>
+    <style>{`
+      @media (max-width: 767px) {
+        .prof-title { font-size: clamp(20px, 5vw, 30px) !important; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
       {/* Header */}
       <div>
         <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", marginBottom: "10px", textTransform: "uppercase" }}>
           Configuración
         </p>
-        <h1 style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
+        <h1 className="prof-title" style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
           Perfil del cliente
         </h1>
       </div>
@@ -487,6 +493,7 @@ function ProfileContent() {
         )}
       </div>
     </div>
+    </>
   )
 }
 

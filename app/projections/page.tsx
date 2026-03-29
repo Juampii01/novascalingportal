@@ -147,13 +147,25 @@ function ProjectionsContent() {
   })
 
   return (
+    <>
+    <style>{`
+      .proj-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+      .proj-table-wrap { overflow-x: auto; }
+      .proj-proj-row { display: flex; align-items: flex-end; justify-content: space-between; }
+      @media (max-width: 767px) {
+        .proj-grid-3 { grid-template-columns: 1fr; gap: 12px; }
+        .proj-title { font-size: clamp(20px, 5vw, 30px) !important; }
+        .proj-proj-row { flex-direction: column; align-items: flex-start; gap: 16px; }
+        .proj-goal-bar { width: 100% !important; }
+      }
+    `}</style>
     <div style={{ display: "flex", flexDirection: "column", gap: "40px" }}>
       {/* Header */}
       <div>
         <p style={{ fontSize: "10px", fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", color: "#4ade80", marginBottom: "10px", textTransform: "uppercase" }}>
           Visibilidad del negocio
         </p>
-        <h1 style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
+        <h1 className="proj-title" style={{ fontFamily: "Georgia, serif", fontSize: "30px", fontWeight: 400, color: "#f5f5f5", letterSpacing: "1px" }}>
           Proyecciones
         </h1>
       </div>
@@ -164,7 +176,7 @@ function ProjectionsContent() {
         <div style={{ ...CARD_P, display: "flex", flexDirection: "column", alignItems: "center", gap: "32px" }}>
           <HealthScoreRing score={healthScore} size={100} />
 
-          <div style={{ width: "100%", maxWidth: "600px" }}>
+          <div className="proj-table-wrap" style={{ width: "100%", maxWidth: "600px" }}>
             <table style={{ width: "100%", borderCollapse: "collapse" }}>
               <thead>
                 <tr>
@@ -207,7 +219,7 @@ function ProjectionsContent() {
       <div>
         <p style={SECTION_LABEL}>Proyección del mes actual</p>
         <div style={{ ...CARD_P, display: "flex", flexDirection: "column", gap: "24px" }}>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "20px" }}>
+          <div className="proj-grid-3">
             <div>
               <p style={{ fontSize: "9px", color: "#333", fontFamily: "sans-serif", letterSpacing: "3px", marginBottom: "6px" }}>LLAMADAS AGENDADAS</p>
               <p style={{ fontFamily: "Georgia, serif", fontSize: "28px", color: "#f5f5f5" }}>{pendingCalls}</p>
@@ -224,7 +236,7 @@ function ProjectionsContent() {
 
           <div style={{ height: "0.5px", background: "#111" }} />
 
-          <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between" }}>
+          <div className="proj-proj-row">
             <div>
               <p style={{ fontSize: "9px", color: "#4ade80", fontFamily: "sans-serif", letterSpacing: "4px", textTransform: "uppercase", marginBottom: "6px" }}>
                 Revenue proyectado NOVA
@@ -237,7 +249,7 @@ function ProjectionsContent() {
               </p>
             </div>
             {monthlyGoal > 0 && (
-              <div style={{ width: "200px" }}>
+              <div className="proj-goal-bar" style={{ width: "200px" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", marginBottom: "6px" }}>
                   <p style={{ fontSize: "9px", color: "#333", fontFamily: "sans-serif", letterSpacing: "2px" }}>Objetivo del mes</p>
                   <p style={{ fontSize: "9px", color: "#22c55e", fontFamily: "sans-serif" }}>{progressPct.toFixed(0)}%</p>
@@ -300,6 +312,7 @@ function ProjectionsContent() {
         </div>
       )}
     </div>
+    </>
   )
 }
 
