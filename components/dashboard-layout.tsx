@@ -328,21 +328,37 @@ export function DashboardLayout({ children }: { children: React.ReactNode }) {
           minHeight: "100vh",
           background: "#080808",
           display: "flex",
+          flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
+          gap: "32px",
         }}
       >
+        <style>{`
+          @keyframes spin { to { transform: rotate(360deg); } }
+          @keyframes fadeInLoad { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        `}</style>
+
+        {/* Logo */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: "12px", animation: "fadeInLoad 0.5s ease both" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+            <span style={{ fontFamily: "Georgia, serif", fontSize: "28px", fontWeight: 400, color: "#22c55e", letterSpacing: "10px" }}>NOVA</span>
+            <div style={{ width: "24px", height: "0.5px", background: "#22c55e", opacity: 0.5 }} />
+            <span style={{ fontFamily: "sans-serif", fontSize: "8px", fontWeight: 300, color: "#555", letterSpacing: "6px" }}>SCALING</span>
+          </div>
+        </div>
+
+        {/* Spinner */}
         <div
           style={{
-            width: "20px",
-            height: "20px",
+            width: "18px",
+            height: "18px",
             border: "1.5px solid #1a1a1a",
             borderTop: "1.5px solid #22c55e",
             borderRadius: "50%",
             animation: "spin 0.7s linear infinite",
           }}
         />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
       </div>
     )
   }
