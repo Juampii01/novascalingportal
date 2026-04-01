@@ -21,6 +21,7 @@ const principalItems = [
 
 const herramientasItems = [
   { name: "EOD Diario", href: "/eod" },
+  { name: "Carousel Studio", href: "/carousel-studio" },
   { name: "Auditoría IA", href: "/audit" },
   { name: "Market Intel", href: "/market-intelligence" },
   { name: "Checklist", href: "/program-checklist" },
