@@ -3,8 +3,8 @@
   "configurations": [
     {
       "name": "Next.js Dev",
-      "runtimeExecutable": "pnpm",
-      "runtimeArgs": ["dev"],
+      "runtimeExecutable": "/usr/local/bin/node",
+      "runtimeArgs": [".claude/dev-server.mjs"],
       "port": 3000,
       "autoPort": true
     },

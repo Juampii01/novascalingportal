@@ -60,6 +60,17 @@ export default function LoginPage() {
         input::placeholder { color: #2a2a2a; }
         input { -webkit-tap-highlight-color: transparent; }
 
+        /* Override browser autofill white background */
+        input:-webkit-autofill,
+        input:-webkit-autofill:hover,
+        input:-webkit-autofill:focus,
+        input:-webkit-autofill:active {
+          -webkit-box-shadow: 0 0 0px 1000px #060606 inset !important;
+          -webkit-text-fill-color: #f5f5f5 !important;
+          caret-color: #f5f5f5;
+          transition: background-color 5000s ease-in-out 0s;
+        }
+
         /* ─── wrapper ─── */
         .l-wrap {
           min-height: 100vh;

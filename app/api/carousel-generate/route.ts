@@ -7,16 +7,17 @@ export const runtime = "nodejs"
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json()
-    const { topic, slideCount = 5, tone = "educativo", cta = "comentá" } = body
+    const { topic, slideCount = 10, tone = "educativo", cta = "comentá" } = body
 
     if (!topic) return NextResponse.json({ error: "Missing topic" }, { status: 400 })
     if (!process.env.ANTHROPIC_API_KEY) return NextResponse.json({ error: "Missing ANTHROPIC_API_KEY" }, { status: 500 })
 
-    const toneMap: Record<string, string> = {
-      educativo:   "educativo y claro, como un mentor que explica con ejemplos concretos",
-      provocador:  "provocador y directo, cuestionando creencias comunes con hechos",
-      testimonial: "basado en resultados reales y transformaciones de clientes",
-      tutorial:    "paso a paso, muy concreto, con instrucciones accionables",
+    const toneGuide: Record<string, string> = {
+      educativo:   "Mentor que enseña con claridad. Explica el por qué detrás de cada punto. Didáctico sin ser condescendiente.",
+      provocador:  "Directo y sin rodeos. Cuestiona lo que el lector da por sentado. Usa afirmaciones fuertes con fundamento.",
+      testimonial: "Habla desde la experiencia y los resultados concretos. Usa evidencia, antes/después, transformaciones reales.",
+      tutorial:    "Instrucciones accionables y específicas. Paso a paso. Que alguien pueda implementarlo hoy mismo.",
+      libre:       "Seguí el estilo que emerge naturalmente del contenido dado. No impongas estructura externa.",
     }
 
     const ctaMap: Record<string, string> = {
@@ -27,44 +28,66 @@ export async function POST(req: NextRequest) {
     }
 
     const finalCTA = ctaMap[cta] ?? ctaMap["comentá"]
+    const styleGuide = toneGuide[tone] ?? toneGuide["educativo"]
 
-    const prompt = `Sos un experto en contenido de Instagram para coaches y consultores latinoamericanos.
-Creá un carrusel de ${slideCount} slides sobre: "${topic}".
+    const prompt = `Sos un estratega de contenido para Instagram especializado en coaches, consultores y negocios de alto ticket en Latinoamérica.
 
-Tono: ${toneMap[tone] ?? toneMap["educativo"]}
+El usuario te pasó este contenido o idea para transformar en un carrusel:
+
+---
+${topic}
+---
+
+Tu trabajo es desarrollar esto en ${slideCount} slides para Instagram. No estás resumiendo ni parafraseando: estás DESARROLLANDO el contenido, expandiendo las ideas, haciéndolas más concretas, más resonantes, más accionables.
+
+ESTILO DE VOZ: ${styleGuide}
+Idioma: argentino. Usá "vos", "acá", "tenés". NUNCA "tú", "aquí", "tienes".
 CTA del último slide: ${finalCTA}
 
-REGLAS ESTRICTAS:
-- Usá siempre "vos" (NUNCA "tú")
-- Directo, sin frases cliché, sin relleno
-- Slide 1 = HOOK poderoso que para el scroll (pregunta, afirmación fuerte, o dato impactante)
-- Slides 2 a N-1 = desarrollo del método/contenido, un punto clave por slide
-- Último slide = CTA claro y motivador
-- Títulos: máximo 6 palabras por línea, máximo 3 líneas (separadas con \\n)
-- Subtítulos: máximo 110 caracteres, concretos y directos
-- Labels descriptivos según el contenido de cada slide
+CÓMO DESARROLLAR CADA SLIDE:
+- Cada slide tiene que tener una idea propia, no ser un bullet point de la idea del slide anterior.
+- El título puede ser una afirmación fuerte, una pregunta que genera tensión, un dato, una paradoja, o una instrucción directa.
+- El subtítulo expande, contrasta, o complementa el título con una capa adicional de información — no lo repite.
+- Podés usar humor, ironía, datos, comparaciones, ejemplos, errores comunes — lo que sirva para que esa idea pegue.
+- Los labels son descriptivos del contenido real de ese slide, no genéricos.
 
-Devolvé ÚNICAMENTE este JSON, sin texto adicional, sin markdown:
+FORMATO ESTRICTO DE TÍTULOS:
+- Máximo 6 palabras por línea
+- Máximo 3 líneas (separadas con \\n)
+- La última línea va en color acento — usala para el remate, la palabra clave, o el giro de sentido
+
+FORMATO ESTRICTO DE SUBTÍTULOS:
+- Máximo 120 caracteres
+- Concreto y específico, no genérico
+- No empieces con "Es importante..." o "Recordá que..." — directo al punto
+
+DISTRIBUCIÓN SUGERIDA (adaptala al contenido):
+- Slide 1: Hook. Tiene que detener el scroll. Pregunta, tensión, dato impactante, o afirmación que desafía.
+- Slides 2 a ${slideCount - 2}: Desarrollo. Cada uno profundiza un aspecto diferente. No repitas ideas.
+- Slide ${slideCount - 1}: Síntesis o remate. El insight más fuerte, la vuelta de tuerca.
+- Slide ${slideCount}: CTA claro. Qué tiene que hacer el lector ahora.
+
+Devolvé ÚNICAMENTE este JSON, sin texto adicional, sin markdown, sin explicaciones:
 {
   "slides": [
     {
       "label": "01 · HOOK",
-      "title": "Primera línea\\nSegunda línea",
-      "subtitle": "Subtítulo corto y concreto",
+      "title": "Primera línea\\nSegunda línea\\nRemate acento",
+      "subtitle": "Subtítulo concreto de máximo 120 caracteres.",
       "cta": "DESLIZÁ →"
     }
   ]
 }
 
-Formato de labels: "01 · HOOK", "02 · EL PROBLEMA", "03 · LA CAUSA", "04 · EL MÉTODO", "05 · CTA", etc.
-CTA slides intermedios: "DESLIZÁ →"
+CTA intermedios: "DESLIZÁ →"
 CTA último slide: "${finalCTA}"
+Labels: descriptivos y numerados. Ej: "01 · EL ERROR", "02 · POR QUÉ PASA", "03 · LA TRAMPA DEL PRECIO", etc.
 `
 
     const client = new Anthropic()
     const response = await client.messages.create({
       model: "claude-opus-4-5",
-      max_tokens: 2048,
+      max_tokens: 4096,
       messages: [{ role: "user", content: prompt }],
     })
 

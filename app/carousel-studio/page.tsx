@@ -9,11 +9,12 @@ import { Maximize2, GripVertical, Download, ChevronDown, ChevronRight } from "lu
 // ═══════════════════════════════════════════════════════════════════════════════
 
 type SlideTheme    = "dark" | "light" | "cream"
-type FontPair      = "georgia" | "playfair" | "impact"
+type FontPair      = "georgia" | "playfair" | "impact" | "inter" | "dm" | "bebas" | "mono"
 type CarouselStatus = "draft" | "exported" | "published"
 type CharPos       = "bottom-right" | "bottom-left" | "center"
 type TextAlign     = "left" | "center"
 type FontScale     = "large" | "medium" | "compact"
+type BgStyle       = "solid" | "gradient-tb" | "gradient-br" | "grid" | "diagonal" | "noise"
 
 interface Slide {
   id: string
@@ -21,6 +22,9 @@ interface Slide {
   title: string
   subtitle: string
   cta: string
+  badge?: string
+  stat?: string
+  quoteStyle?: boolean
 }
 
 interface Carousel {
@@ -32,14 +36,19 @@ interface Carousel {
   theme: SlideTheme
   fontPair: FontPair
   accentColor: string
+  bgColor: string
+  bgGradientEnd: string
+  bgStyle: BgStyle
   showCharacter: boolean
   characterPosition: CharPos
   showLogo: boolean
+  logoText: string
   textAlign: TextAlign
   fontScale: FontScale
   showLabel: boolean
   showFooter: boolean
   accentLine: boolean
+  accentLineBottom: boolean
   slides: Slide[]
 }
 
@@ -53,11 +62,24 @@ const THEMES = {
   cream: { bg: "#EAE6DD", text: "#141310", sub: "#6b7280", border: "#d4cfc5", label: "Cream" },
 }
 
-const FONTS = {
-  georgia:  { title: "Georgia, serif",                     body: "Georgia, serif",       name: "Georgia"         },
-  playfair: { title: "'Playfair Display', Georgia, serif", body: "'Lora', Georgia, serif", name: "Playfair / Lora" },
-  impact:   { title: "Impact, 'Arial Black', sans-serif",  body: "Arial, sans-serif",    name: "Impact / Arial"  },
+const FONTS: Record<FontPair, { title: string; body: string; name: string }> = {
+  georgia:  { title: "Georgia, serif",                      body: "Georgia, serif",            name: "Georgia"   },
+  playfair: { title: "'Playfair Display', Georgia, serif",  body: "'Lora', Georgia, serif",    name: "Playfair"  },
+  impact:   { title: "Impact, 'Arial Black', sans-serif",   body: "Arial, sans-serif",         name: "Impact"    },
+  inter:    { title: "'Inter', sans-serif",                  body: "'Inter', sans-serif",       name: "Inter"     },
+  dm:       { title: "'DM Serif Display', Georgia, serif",  body: "'DM Sans', sans-serif",     name: "DM Serif"  },
+  bebas:    { title: "'Bebas Neue', Impact, sans-serif",     body: "'Inter', sans-serif",       name: "Bebas"     },
+  mono:     { title: "'Space Mono', monospace",              body: "'Space Mono', monospace",   name: "Mono"      },
 }
+
+const BG_STYLES: { id: BgStyle; label: string; icon: string }[] = [
+  { id: "solid",       label: "Sólido",    icon: "■" },
+  { id: "gradient-tb", label: "Gradiente ↓", icon: "▼" },
+  { id: "gradient-br", label: "Gradiente ↘", icon: "◢" },
+  { id: "grid",        label: "Grilla",    icon: "⊞" },
+  { id: "diagonal",    label: "Diagonal",  icon: "╱" },
+  { id: "noise",       label: "Textura",   icon: "▒" },
+]
 
 const FONT_SIZES: Record<FontScale, { title: number; subtitle: number; label: number; cta: number }> = {
   large:   { title: 104, subtitle: 38, label: 26, cta: 24 },
@@ -65,16 +87,21 @@ const FONT_SIZES: Record<FontScale, { title: number; subtitle: number; label: nu
   compact: { title: 60,  subtitle: 28, label: 18, cta: 17 },
 }
 
-const ACCENT_PRESETS = ["#22c55e", "#d4836b", "#3b82f6", "#f59e0b", "#ec4899", "#ffffff"]
+const ACCENT_PRESETS = ["#22c55e","#4ade80","#d4836b","#f97316","#3b82f6","#06b6d4","#f59e0b","#ec4899","#a855f7","#ffffff","#e2e8f0","#111111"]
 
-const PALETTE_PRESETS = [
-  { name: "NOVA",     bg: "#080808", accent: "#22c55e" },
-  { name: "Salmon",   bg: "#1a0d0d", accent: "#d4836b" },
-  { name: "Azul",     bg: "#0a0f1a", accent: "#3b82f6" },
-  { name: "Dorado",   bg: "#0d0a00", accent: "#f59e0b" },
-  { name: "Rosa",     bg: "#1a0d14", accent: "#ec4899" },
-  { name: "Blanco",   bg: "#f5f5f0", accent: "#111111" },
-  { name: "Crema",    bg: "#EAE6DD", accent: "#141310" },
+const PALETTE_PRESETS: { name: string; bg: string; accent: string; gradEnd?: string }[] = [
+  { name: "NOVA",      bg: "#080808", accent: "#22c55e" },
+  { name: "Bosque",    bg: "#0a1a0d", accent: "#4ade80" },
+  { name: "Salmon",    bg: "#1a0d0d", accent: "#d4836b" },
+  { name: "Naranja",   bg: "#140800", accent: "#f97316" },
+  { name: "Azul",      bg: "#0a0f1a", accent: "#3b82f6" },
+  { name: "Cian",      bg: "#001414", accent: "#06b6d4" },
+  { name: "Dorado",    bg: "#0d0a00", accent: "#f59e0b" },
+  { name: "Rosa",      bg: "#1a0d14", accent: "#ec4899" },
+  { name: "Violeta",   bg: "#0d0a1a", accent: "#a855f7" },
+  { name: "Blanco",    bg: "#f5f5f0", accent: "#111111" },
+  { name: "Crema",     bg: "#EAE6DD", accent: "#141310" },
+  { name: "Gris",      bg: "#111111", accent: "#e2e8f0" },
 ]
 
 const CTA_SUGG   = ["DESLIZÁ →", "SEGUÍ →", "GUARDÁ ESTO →", "COMENTÁ ABAJO →"]
@@ -94,15 +121,22 @@ function makeCarousel(name: string, clientId?: string | null): Carousel {
     id: genId(), name: String(name ?? "").slice(0, 80),
     clientId: clientId ?? null, createdAt: new Date().toISOString(),
     status: "draft", theme: "dark", fontPair: "georgia", accentColor: "#22c55e",
-    showCharacter: false, characterPosition: "bottom-right", showLogo: false,
-    textAlign: "left", fontScale: "large", showLabel: true, showFooter: true, accentLine: false,
-    slides: [0, 1, 2, 3].map(emptySlide),
+    bgColor: "#080808", bgGradientEnd: "#111827", bgStyle: "solid",
+    showCharacter: false, characterPosition: "bottom-right",
+    showLogo: false, logoText: "NOVA",
+    textAlign: "left", fontScale: "large", showLabel: true, showFooter: true,
+    accentLine: false, accentLineBottom: false,
+    slides: [0, 1, 2, 3, 4].map(emptySlide),
   }
 }
 
 function migrateCarousel(c: any): Carousel {
   return {
-    textAlign: "left", fontScale: "large", showLabel: true, showFooter: true, accentLine: false,
+    textAlign: "left", fontScale: "large", showLabel: true, showFooter: true,
+    accentLine: false, accentLineBottom: false,
+    bgColor: c?.theme ? THEMES[c.theme as SlideTheme]?.bg ?? "#080808" : "#080808",
+    bgGradientEnd: "#111827", bgStyle: "solid",
+    showLogo: false, logoText: "NOVA",
     ...c,
     name: String(c?.name ?? "Sin nombre").slice(0, 80),
   }
@@ -127,67 +161,129 @@ const lsSave = (cs: Carousel[]) => { try { localStorage.setItem(LS_KEY, JSON.str
 // SLIDE RENDER
 // ═══════════════════════════════════════════════════════════════════════════════
 
+function getSlideBackground(carousel: Carousel): React.CSSProperties {
+  const bg = carousel.bgColor ?? "#080808"
+  const g  = carousel.bgGradientEnd ?? "#111827"
+  switch (carousel.bgStyle ?? "solid") {
+    case "gradient-tb": return { background: `linear-gradient(180deg, ${bg} 0%, ${g} 100%)` }
+    case "gradient-br": return { background: `linear-gradient(135deg, ${bg} 0%, ${g} 100%)` }
+    default:            return { background: bg }
+  }
+}
+
 function SlideRender({ slide, carousel, scale = 1 }: { slide: Slide; carousel: Carousel; scale?: number }) {
-  const t  = THEMES[carousel.theme]
-  const f  = FONTS[carousel.fontPair]
-  const sz = FONT_SIZES[carousel.fontScale ?? "large"]
+  const t     = THEMES[carousel.theme ?? "dark"]
+  const f     = FONTS[carousel.fontPair ?? "georgia"]
+  const sz    = FONT_SIZES[carousel.fontScale ?? "large"]
   const lines = (slide.title || "").split("\n")
   const align = carousel.textAlign ?? "left"
+  const bgStyle = carousel.bgStyle ?? "solid"
+  const bgCSS = getSlideBackground(carousel)
+  const fgText = t.text
+  const fgSub  = t.sub
+  const border = t.border
+
+  // Pattern overlay element
+  const patternOverlay = (() => {
+    if (bgStyle === "grid") return (
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `linear-gradient(${fgText}08 1px, transparent 1px), linear-gradient(90deg, ${fgText}08 1px, transparent 1px)`, backgroundSize: "90px 90px", pointerEvents: "none" }} />
+    )
+    if (bgStyle === "diagonal") return (
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `repeating-linear-gradient(45deg, ${fgText}06 0px, ${fgText}06 1px, transparent 1px, transparent 60px)`, pointerEvents: "none" }} />
+    )
+    if (bgStyle === "noise") return (
+      <div style={{ position: "absolute", inset: 0, backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E")`, backgroundSize: "256px 256px", pointerEvents: "none" }} />
+    )
+    return null
+  })()
 
   return (
-    <div style={{ width: 1080, height: 1350, transform: `scale(${scale})`, transformOrigin: "top left", background: t.bg, position: "relative", overflow: "hidden", flexShrink: 0 }}>
+    <div style={{ width: 1080, height: 1350, transform: scale !== 1 ? `scale(${scale})` : undefined, transformOrigin: "top left", position: "relative", overflow: "hidden", flexShrink: 0, ...bgCSS }}>
 
-      {/* Accent line decoration */}
+      {patternOverlay}
+
+      {/* Top accent line */}
       {carousel.accentLine && (
-        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 4, background: carousel.accentColor }} />
+        <div style={{ position: "absolute", top: 0, left: 0, right: 0, height: 5, background: carousel.accentColor, zIndex: 2 }} />
+      )}
+
+      {/* Bottom accent line */}
+      {carousel.accentLineBottom && (
+        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 5, background: carousel.accentColor, zIndex: 2 }} />
       )}
 
       {/* Label */}
       {(carousel.showLabel ?? true) && (
-        <div style={{ position: "absolute", top: 72, left: align === "center" ? "50%" : 72, transform: align === "center" ? "translateX(-50%)" : undefined, fontSize: sz.label, fontFamily: "monospace", letterSpacing: 6, color: t.sub, textTransform: "uppercase", whiteSpace: "nowrap" }}>
+        <div style={{ position: "absolute", top: 72, left: align === "center" ? "50%" : 72, transform: align === "center" ? "translateX(-50%)" : undefined, fontSize: sz.label, fontFamily: f.body, letterSpacing: 6, color: fgSub, textTransform: "uppercase", whiteSpace: "nowrap", zIndex: 1 }}>
           {slide.label || "01 · SLIDE"}
         </div>
       )}
 
-      {/* Logo placeholder */}
+      {/* Logo */}
       {carousel.showLogo && (
-        <div style={{ position: "absolute", top: 56, right: 72, border: `1px solid ${t.border}`, borderRadius: 6, padding: "7px 14px", fontSize: 9, color: t.sub, letterSpacing: 3, fontFamily: "monospace" }}>
-          LOGO
+        <div style={{ position: "absolute", top: 56, right: 72, border: `1px solid ${border}`, borderRadius: 6, padding: "7px 14px", fontSize: 20, color: fgSub, letterSpacing: 3, fontFamily: f.title, zIndex: 1 }}>
+          {carousel.logoText || "LOGO"}
         </div>
       )}
 
-      {/* Title + Subtitle */}
-      <div style={{ position: "absolute", left: align === "center" ? 64 : 72, right: align === "center" ? 64 : 72, top: "50%", transform: "translateY(-58%)", textAlign: align }}>
-        <div style={{ fontSize: sz.title, fontFamily: f.title, fontWeight: 700, lineHeight: 1.08, marginBottom: 48 }}>
+      {/* Badge pill */}
+      {slide.badge && (
+        <div style={{ position: "absolute", top: carousel.showLabel ? 130 : 72, left: align === "center" ? "50%" : 72, transform: align === "center" ? "translateX(-50%)" : undefined, display: "inline-flex", alignItems: "center", gap: 10, background: `${carousel.accentColor}22`, border: `1px solid ${carousel.accentColor}55`, borderRadius: 999, padding: "10px 28px", zIndex: 1 }}>
+          <span style={{ fontSize: 22, fontFamily: f.body, letterSpacing: 3, color: carousel.accentColor, textTransform: "uppercase" }}>{slide.badge}</span>
+        </div>
+      )}
+
+      {/* Big stat / number */}
+      {slide.stat && (
+        <div style={{ position: "absolute", top: "50%", left: align === "center" ? "50%" : 72, transform: align === "center" ? "translate(-50%,-160%)" : "translateY(-160%)", fontSize: 260, fontFamily: f.title, fontWeight: 700, lineHeight: 1, color: carousel.accentColor, opacity: 0.12, userSelect: "none", pointerEvents: "none", whiteSpace: "nowrap", zIndex: 0 }}>
+          {slide.stat}
+        </div>
+      )}
+      {slide.stat && (
+        <div style={{ position: "absolute", top: "18%", left: align === "center" ? "50%" : 72, transform: align === "center" ? "translateX(-50%)" : undefined, textAlign: align as any, zIndex: 1 }}>
+          <div style={{ fontSize: 180, fontFamily: f.title, fontWeight: 700, lineHeight: 1, color: carousel.accentColor }}>{slide.stat}</div>
+        </div>
+      )}
+
+      {/* Title + Subtitle block */}
+      <div style={{ position: "absolute", left: align === "center" ? 64 : 72, right: align === "center" ? 64 : 72, top: slide.stat ? "46%" : "50%", transform: "translateY(-58%)", textAlign: align as any, zIndex: 1 }}>
+
+        {/* Quote decoration */}
+        {slide.quoteStyle && (
+          <div style={{ fontSize: 200, fontFamily: "Georgia, serif", lineHeight: 0.6, marginBottom: 20, color: carousel.accentColor, opacity: 0.4, textAlign: align as any }}>&#8220;</div>
+        )}
+
+        <div style={{ fontSize: sz.title, fontFamily: f.title, fontWeight: carousel.fontPair === "inter" || carousel.fontPair === "mono" ? 800 : 700, lineHeight: 1.08, marginBottom: 44 }}>
           {lines.map((ln, i) => (
-            <div key={i} style={{ color: i === lines.length - 1 ? carousel.accentColor : t.text }}>
+            <div key={i} style={{ color: i === lines.length - 1 ? carousel.accentColor : fgText }}>
               {ln || "\u00A0"}
             </div>
           ))}
         </div>
+
         {slide.subtitle && (
-          <div style={{ fontSize: sz.subtitle, fontFamily: f.body, fontWeight: 300, lineHeight: 1.65, color: t.sub }}>
-            {slide.subtitle}
-          </div>
+          slide.quoteStyle
+            ? <div style={{ borderLeft: `4px solid ${carousel.accentColor}`, paddingLeft: 36, fontSize: sz.subtitle, fontFamily: f.body, fontWeight: 300, lineHeight: 1.65, color: fgSub, fontStyle: "italic" }}>{slide.subtitle}</div>
+            : <div style={{ fontSize: sz.subtitle, fontFamily: f.body, fontWeight: 300, lineHeight: 1.65, color: fgSub }}>{slide.subtitle}</div>
         )}
       </div>
 
       {/* Character silhouette */}
       {carousel.showCharacter && (
         <div style={{
-          position: "absolute", bottom: 0,
+          position: "absolute", bottom: 0, zIndex: 0,
           ...(carousel.characterPosition === "bottom-right" ? { right: 0, borderTopLeftRadius: 999 }
             : carousel.characterPosition === "bottom-left" ? { left: 0, borderTopRightRadius: 999 }
             : { left: "50%", transform: "translateX(-50%)", borderRadius: "999px 999px 0 0" }),
-          width: 380, height: 580, background: t.text, opacity: 0.08,
+          width: 380, height: 580, background: fgText, opacity: 0.08,
         }} />
       )}
 
       {/* Footer */}
       {(carousel.showFooter ?? true) && (
-        <div style={{ position: "absolute", bottom: 72, left: 72, right: 72, textAlign: align }}>
-          <div style={{ height: 1, background: t.border, marginBottom: 32 }} />
-          <div style={{ fontSize: sz.cta, fontFamily: "monospace", letterSpacing: 8, color: t.sub, textTransform: "uppercase" }}>
+        <div style={{ position: "absolute", bottom: 72, left: 72, right: 72, textAlign: align as any, zIndex: 1 }}>
+          <div style={{ height: 1, background: border, marginBottom: 32 }} />
+          <div style={{ fontSize: sz.cta, fontFamily: f.body, letterSpacing: 8, color: fgSub, textTransform: "uppercase" }}>
             {slide.cta || "DESLIZÁ →"}
           </div>
         </div>
@@ -198,10 +294,10 @@ function SlideRender({ slide, carousel, scale = 1 }: { slide: Slide; carousel: C
 
 // Thumbnail
 function Thumb({ slide, carousel, active, onClick }: { slide: Slide; carousel: Carousel; active?: boolean; onClick?: () => void }) {
-  const W = 40, scale = W / 1080
+  const W = 64, H = 80, scale = W / 1080
   return (
-    <div onClick={onClick} style={{ width: W, height: 50, overflow: "hidden", borderRadius: 4, cursor: "pointer", flexShrink: 0, border: `1.5px solid ${active ? "#22c55e" : "transparent"}`, transition: "border-color 0.15s", boxShadow: active ? "0 0 0 3px rgba(34,197,94,0.15)" : "none" }}>
-      <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", pointerEvents: "none" }}>
+    <div onClick={onClick} style={{ width: W, height: H, overflow: "hidden", borderRadius: 5, cursor: "pointer", flexShrink: 0, border: `1.5px solid ${active ? "#22c55e" : "#1a1a1a"}`, transition: "border-color 0.15s", boxShadow: active ? "0 0 0 3px rgba(34,197,94,0.18)" : "none", background: "#000" }}>
+      <div style={{ transform: `scale(${scale})`, transformOrigin: "top left", pointerEvents: "none", width: 1080, height: 1350 }}>
         <SlideRender slide={slide} carousel={carousel} />
       </div>
     </div>
@@ -218,8 +314,10 @@ function ScaledPreview({ slide, carousel }: { slide: Slide; carousel: Carousel }
     return () => obs.disconnect()
   }, [])
   return (
-    <div ref={ref} style={{ width: "100%", height: scale * 1350, overflow: "hidden" }}>
-      <SlideRender slide={slide} carousel={carousel} scale={scale} />
+    <div ref={ref} style={{ width: "100%", height: scale * 1350, overflow: "hidden", position: "relative" }}>
+      <div style={{ position: "absolute", top: 0, left: 0, width: 1080, height: 1350, transform: `scale(${scale})`, transformOrigin: "top left" }}>
+        <SlideRender slide={slide} carousel={carousel} />
+      </div>
     </div>
   )
 }
@@ -270,7 +368,7 @@ function CarouselStudioInner() {
   const [activeId, setActiveId]       = useState<string | null>(null)
   const [slideIdx, setSlideIdx]       = useState(0)
   const [aiOpen, setAiOpen]           = useState(false)
-  const [aiForm, setAiForm]           = useState({ topic: "", slideCount: 5, tone: "educativo", cta: "comentá" })
+  const [aiForm, setAiForm]           = useState({ topic: "", slideCount: 10, tone: "educativo", cta: "comentá" })
   const [aiStatus, setAiStatus]       = useState<string | null>(null)
   const [fullscreen, setFullscreen]   = useState(false)
   const [newName, setNewName]         = useState("")
@@ -278,11 +376,16 @@ function CarouselStudioInner() {
   const [filterStatus, setFilterStatus] = useState("all")
   const [dragIdx, setDragIdx]         = useState<number | null>(null)
   const [dragOverIdx, setDragOverIdx] = useState<number | null>(null)
-  const [downloading, setDownloading] = useState(false)
-  const [editingName, setEditingName] = useState<string | null>(null)
-  const hiddenRef = useRef<HTMLDivElement>(null)
+  const [downloading, setDownloading]     = useState(false)
+  const [downloadingZip, setDownloadingZip] = useState(false)
+  const [editingName, setEditingName]     = useState<string | null>(null)
+  const [confirmDlg, setConfirmDlg]       = useState<{ msg: string; onOk: () => void } | null>(null)
+  const [selectedSlides, setSelectedSlides] = useState<Set<number>>(new Set())
+  const hiddenRef  = useRef<HTMLDivElement>(null)
+  const batchRefs  = useRef<(HTMLDivElement | null)[]>([])
 
   useEffect(() => { setCarousels(lsLoad()) }, [])
+  useEffect(() => { setSelectedSlides(new Set()) }, [activeId])
 
   const save = useCallback((cs: Carousel[]) => { setCarousels(cs); lsSave(cs) }, [])
 
@@ -363,6 +466,35 @@ function CarouselStudioInner() {
     }
   }
 
+  // Download ZIP of selected (or all) slides
+  const downloadZIP = async () => {
+    if (!activeCarousel) return
+    setDownloadingZip(true)
+    try {
+      const [{ default: JSZip }, { toPng }] = await Promise.all([
+        import("jszip") as any,
+        import("html-to-image"),
+      ])
+      const zip = new JSZip()
+      const allIdx = activeCarousel.slides.map((_, i) => i)
+      const indices = selectedSlides.size > 0 ? [...selectedSlides].sort((a, b) => a - b) : allIdx
+      for (const i of indices) {
+        const el = batchRefs.current[i]
+        if (!el) continue
+        const dataUrl = await toPng(el, { quality: 1, pixelRatio: 1, cacheBust: true })
+        const base64 = dataUrl.split(",")[1]
+        zip.file(`slide_${String(i + 1).padStart(2, "0")}.png`, base64, { base64: true })
+      }
+      const blob = await zip.generateAsync({ type: "blob" })
+      const a = document.createElement("a")
+      a.href = URL.createObjectURL(blob)
+      a.download = `${activeCarousel.name.toLowerCase().replace(/\s+/g, "-")}.zip`
+      a.click()
+      URL.revokeObjectURL(a.href)
+    } catch (e) { console.error("ZIP error:", e) }
+    finally { setDownloadingZip(false) }
+  }
+
   // AI generate
   const generateAI = async (regenerateSlideIdx?: number) => {
     if (!aiForm.topic.trim()) return
@@ -419,7 +551,7 @@ function CarouselStudioInner() {
   return (
     <>
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@300;400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Lora:wght@300;400&family=Inter:wght@300;400;600;800&family=DM+Serif+Display&family=DM+Sans:wght@300;400&family=Bebas+Neue&family=Space+Mono:wght@400;700&display=swap');
         .cs-row:hover .cs-del { opacity:1!important; }
         .cs-hist-row:hover { background:rgba(255,255,255,0.012)!important; }
         .cs-pill { transition:all 0.15s; }
@@ -461,24 +593,36 @@ function CarouselStudioInner() {
       {/* ── AI Panel ─────────────────────────────────────────────── */}
       {aiOpen && (
         <div style={{ ...card, padding: "20px 24px", marginBottom: 20 }}>
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
-            <p style={{ fontSize: 9, fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", textTransform: "uppercase", color: "#4ade80" }}>✦ Generar con IA</p>
-            <button onClick={() => setAiOpen(false)} style={{ background: "transparent", border: "none", color: "#444", cursor: "pointer", fontSize: 16 }}>✕</button>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 120px 160px 140px", gap: 16, alignItems: "end" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 6 }}>
             <div>
-              <p style={{ fontSize: 8, letterSpacing: "2px", textTransform: "uppercase", color: "#444", fontFamily: "sans-serif", marginBottom: 8 }}>¿Sobre qué es el carrusel?</p>
-              <input placeholder="Ej: Cómo cerrar sin bajar precios" value={aiForm.topic}
-                onChange={e => setAiForm(f => ({ ...f, topic: e.target.value }))}
-                style={{ width: "100%", background: "transparent", border: "none", borderBottom: "0.5px solid #222", padding: "10px 0", color: "#f5f5f5", fontSize: 13, fontFamily: "sans-serif", outline: "none", boxSizing: "border-box" }} />
+              <p style={{ fontSize: 9, fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", textTransform: "uppercase", color: "#4ade80", marginBottom: 4 }}>✦ Generar con IA</p>
+              <p style={{ fontSize: 11, fontFamily: "sans-serif", fontWeight: 300, color: "#444", lineHeight: 1.5 }}>Pegá ideas, notas, un guión, un texto, lo que tengas. La IA lo desarrolla en un carrusel completo.</p>
             </div>
+            <button onClick={() => setAiOpen(false)} style={{ background: "transparent", border: "none", color: "#444", cursor: "pointer", fontSize: 16, flexShrink: 0, marginLeft: 24 }}>✕</button>
+          </div>
+
+          {/* Big textarea */}
+          <div style={{ marginTop: 16, marginBottom: 16 }}>
+            <textarea
+              autoFocus
+              placeholder={"Ejemplo:\n'Quiero hablar de por qué los coaches no cierran ventas. El problema es que hablan del precio antes de mostrar el valor. Primero tenés que hacer sentir el dolor, después mostrar la transformación, y recién ahí mencionar el precio. También quiero meter objeciones comunes...'\n\nO simplemente: Cómo dejar de competir por precio y cerrar clientes que te valoran."}
+              value={aiForm.topic}
+              onChange={e => setAiForm(f => ({ ...f, topic: e.target.value }))}
+              rows={6}
+              style={{ width: "100%", background: "#080808", border: "0.5px solid #1a1a1a", borderRadius: 8, padding: "14px 16px", color: "#f5f5f5", fontSize: 13, fontFamily: "sans-serif", fontWeight: 300, outline: "none", resize: "vertical", lineHeight: 1.7, boxSizing: "border-box", minHeight: 120 }}
+            />
+            <p style={{ fontSize: 9, color: "#333", fontFamily: "sans-serif", marginTop: 6, letterSpacing: 0.5 }}>{aiForm.topic.length} caracteres · cuanto más detalle, mejor resultado</p>
+          </div>
+
+          {/* Controls row */}
+          <div style={{ display: "grid", gridTemplateColumns: "100px 160px 140px", gap: 12, alignItems: "end", marginBottom: 18 }}>
             {[
-              { key: "slideCount", label: "Slides", opts: [[4,"4"],[5,"5"],[6,"6"],[7,"7"],[8,"8"]] },
-              { key: "tone", label: "Tono", opts: [["educativo","Educativo"],["provocador","Provocador"],["testimonial","Testimonial"],["tutorial","Tutorial"]] },
-              { key: "cta", label: "CTA final", opts: [["comentá","Comentá"],["guardá","Guardá"],["seguime","Seguime"],["dm","DM"]] },
+              { key: "slideCount", label: "Cantidad de slides", opts: [[6,"6"],[7,"7"],[8,"8"],[9,"9"],[10,"10"],[11,"11"],[12,"12"]] },
+              { key: "tone", label: "Estilo de voz", opts: [["educativo","Educativo / Mentor"],["provocador","Provocador / Directo"],["testimonial","Testimonial / Resultados"],["tutorial","Tutorial / Paso a paso"],["libre","Libre / Del contenido"]] },
+              { key: "cta", label: "CTA final", opts: [["comentá","Comentá"],["guardá","Guardá"],["seguime","Seguime"],["dm","Mandame un DM"]] },
             ].map(({ key, label, opts }) => (
               <div key={key}>
-                <p style={{ fontSize: 8, letterSpacing: "2px", textTransform: "uppercase", color: "#444", fontFamily: "sans-serif", marginBottom: 8 }}>{label}</p>
+                <p style={{ fontSize: 8, letterSpacing: "2px", textTransform: "uppercase", color: "#444", fontFamily: "sans-serif", marginBottom: 7 }}>{label}</p>
                 <select value={(aiForm as any)[key]} onChange={e => setAiForm(f => ({ ...f, [key]: key === "slideCount" ? Number(e.target.value) : e.target.value }))}
                   style={{ width: "100%", background: "#111", border: "0.5px solid #222", borderRadius: 6, padding: "9px 10px", color: "#f5f5f5", fontSize: 11, cursor: "pointer", outline: "none" }}>
                   {opts.map(([v, l]) => <option key={String(v)} value={v}>{l}</option>)}
@@ -486,10 +630,11 @@ function CarouselStudioInner() {
               </div>
             ))}
           </div>
-          <div style={{ display: "flex", gap: 12, marginTop: 18, alignItems: "center" }}>
+
+          <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
             <button onClick={() => generateAI()} disabled={!aiForm.topic.trim() || !!aiStatus}
-              style={{ padding: "10px 24px", borderRadius: 8, background: "#22c55e", border: "none", color: "#000", fontSize: 11, fontFamily: "sans-serif", fontWeight: 600, letterSpacing: 2, cursor: "pointer", opacity: (!aiForm.topic.trim() || !!aiStatus) ? 0.4 : 1 }}>
-              Generar
+              style={{ padding: "10px 28px", borderRadius: 8, background: "#22c55e", border: "none", color: "#000", fontSize: 11, fontFamily: "sans-serif", fontWeight: 700, letterSpacing: 2, cursor: "pointer", opacity: (!aiForm.topic.trim() || !!aiStatus) ? 0.4 : 1 }}>
+              Generar {aiForm.slideCount} slides
             </button>
             {activeCarousel && (
               <button onClick={() => generateAI()} disabled={!aiForm.topic.trim() || !!aiStatus}
@@ -504,12 +649,45 @@ function CarouselStudioInner() {
 
       {/* ── EDITOR ───────────────────────────────────────────────── */}
       {activeCarousel && activeSlide ? (
+        <>
+        {/* Editor header bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 12, padding: "10px 16px", background: "#0d0d0d", border: "0.5px solid #111", borderRadius: 8 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block", flexShrink: 0 }} />
+            <p style={{ fontSize: 13, fontFamily: "sans-serif", fontWeight: 300, color: "#f5f5f5", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: 300 }}>{activeCarousel.name}</p>
+            <span style={{ fontSize: 9, fontFamily: "monospace", color: "#333", letterSpacing: 2 }}>{activeCarousel.slides.length} SLIDES</span>
+          </div>
+          <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+            <button onClick={downloadZIP} disabled={downloadingZip}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 14px", borderRadius: 6, background: "rgba(34,197,94,0.08)", border: "0.5px solid rgba(34,197,94,0.25)", color: downloadingZip ? "#4ade80" : "#22c55e", fontSize: 10, fontFamily: "sans-serif", letterSpacing: 1, cursor: "pointer", opacity: downloadingZip ? 0.6 : 1 }}>
+              <Download size={10} />
+              {downloadingZip
+                ? "Generando…"
+                : selectedSlides.size > 0
+                  ? `ZIP (${selectedSlides.size} seleccionados)`
+                  : `ZIP (${activeCarousel.slides.length} slides)`}
+            </button>
+            <button onClick={() => { setActiveId(null); setSlideIdx(0) }}
+              style={{ display: "flex", alignItems: "center", gap: 6, padding: "6px 12px", borderRadius: 6, background: "transparent", border: "0.5px solid #1a1a1a", color: "#555", fontSize: 11, fontFamily: "sans-serif", cursor: "pointer" }}>
+              ✕ Cerrar
+            </button>
+          </div>
+        </div>
         <div style={{ display: "grid", gridTemplateColumns: "210px 1fr 290px", gap: 16, marginBottom: 32, alignItems: "start" }}>
 
           {/* LEFT — Slide list */}
           <div style={{ ...card }}>
-            <div style={{ padding: "12px 14px", borderBottom: "0.5px solid #111", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-              <p style={{ fontSize: 8, letterSpacing: "2.5px", textTransform: "uppercase", color: "#444", fontFamily: "sans-serif" }}>{activeCarousel.slides.length} slides</p>
+            <div style={{ padding: "10px 14px", borderBottom: "0.5px solid #111", display: "flex", alignItems: "center", justifyContent: "space-between", gap: 6 }}>
+              <label style={{ display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }} title="Seleccionar todos">
+                <input type="checkbox"
+                  checked={selectedSlides.size === activeCarousel.slides.length}
+                  ref={el => { if (el) el.indeterminate = selectedSlides.size > 0 && selectedSlides.size < activeCarousel.slides.length }}
+                  onChange={e => setSelectedSlides(e.target.checked ? new Set(activeCarousel.slides.map((_,i) => i)) : new Set())}
+                  style={{ accentColor: "#22c55e", width: 11, height: 11, cursor: "pointer" }} />
+                <p style={{ fontSize: 8, letterSpacing: "2px", textTransform: "uppercase", color: selectedSlides.size > 0 ? "#4ade80" : "#444", fontFamily: "sans-serif" }}>
+                  {selectedSlides.size > 0 ? `${selectedSlides.size}/${activeCarousel.slides.length}` : `${activeCarousel.slides.length} slides`}
+                </p>
+              </label>
               <button onClick={addSlide} style={{ width: 22, height: 22, borderRadius: 4, background: "rgba(34,197,94,0.1)", border: "0.5px solid rgba(34,197,94,0.2)", color: "#22c55e", fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
             </div>
             <div>
@@ -530,7 +708,18 @@ function CarouselStudioInner() {
                   }}
                 >
                   <GripVertical size={10} color="#222" style={{ flexShrink: 0, cursor: "grab" }} />
-                  <span style={{ fontSize: 9, color: "#2a2a2a", fontFamily: "monospace", flexShrink: 0, minWidth: 12 }}>{i + 1}</span>
+                  <input type="checkbox"
+                    checked={selectedSlides.has(i)}
+                    onClick={e => e.stopPropagation()}
+                    onChange={e => {
+                      e.stopPropagation()
+                      setSelectedSlides(prev => {
+                        const next = new Set(prev)
+                        e.target.checked ? next.add(i) : next.delete(i)
+                        return next
+                      })
+                    }}
+                    style={{ accentColor: "#22c55e", width: 11, height: 11, cursor: "pointer", flexShrink: 0 }} />
                   <Thumb slide={slide} carousel={activeCarousel} active={i === slideIdx} />
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <p style={{ fontSize: 7, color: i === slideIdx ? "#4ade80" : "#444", fontFamily: "monospace", letterSpacing: 1, textTransform: "uppercase", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", marginBottom: 3 }}>
@@ -540,7 +729,7 @@ function CarouselStudioInner() {
                       {slide.title.replace("\n", " ") || "Sin título"}
                     </p>
                   </div>
-                  <button className="cs-del" onClick={e => { e.stopPropagation(); if (confirm("¿Eliminar slide?")) deleteSlide(i) }}
+                  <button className="cs-del" onClick={e => { e.stopPropagation(); setConfirmDlg({ msg: "¿Eliminar este slide?", onOk: () => deleteSlide(i) }) }}
                     style={{ opacity: 0, background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 11, transition: "opacity 0.15s", flexShrink: 0 }}>✕</button>
                 </div>
               ))}
@@ -548,12 +737,12 @@ function CarouselStudioInner() {
           </div>
 
           {/* CENTER — Preview */}
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
             {/* Font selector */}
-            <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <div style={{ display: "flex", gap: 5, alignItems: "center", flexWrap: "wrap" }}>
               {(Object.keys(FONTS) as FontPair[]).map(fp => (
                 <button key={fp} onClick={() => uc({ fontPair: fp })}
-                  style={{ padding: "6px 14px", borderRadius: 6, fontSize: 11, cursor: "pointer", fontFamily: FONTS[fp].title, background: activeCarousel.fontPair === fp ? "rgba(34,197,94,0.1)" : "transparent", border: `0.5px solid ${activeCarousel.fontPair === fp ? "rgba(34,197,94,0.3)" : "#1a1a1a"}`, color: activeCarousel.fontPair === fp ? "#4ade80" : "#555" }}>
+                  style={{ padding: "5px 11px", borderRadius: 6, fontSize: 11, cursor: "pointer", fontFamily: FONTS[fp].title, background: activeCarousel.fontPair === fp ? "rgba(34,197,94,0.1)" : "transparent", border: `0.5px solid ${activeCarousel.fontPair === fp ? "rgba(34,197,94,0.3)" : "#1a1a1a"}`, color: activeCarousel.fontPair === fp ? "#4ade80" : "#555", whiteSpace: "nowrap" }}>
                   {FONTS[fp].name}
                 </button>
               ))}
@@ -598,46 +787,63 @@ function CarouselStudioInner() {
           {/* RIGHT — Edit panel */}
           <div style={{ ...card, overflow: "hidden" }}>
 
-            {/* ─ ESTILO ─ */}
-            <Section title="Estilo" defaultOpen>
-              {/* Temas */}
-              <div style={{ marginBottom: 16 }}>
-                <p style={{ fontSize: 8, letterSpacing: "2px", color: "#444", fontFamily: "sans-serif", textTransform: "uppercase", marginBottom: 8 }}>Tema</p>
-                <div style={{ display: "flex", gap: 6 }}>
-                  {(Object.keys(THEMES) as SlideTheme[]).map(th => (
-                    <button key={th} onClick={() => uc({ theme: th })}
-                      style={{ flex: 1, padding: "8px 0", borderRadius: 6, cursor: "pointer", background: THEMES[th].bg, color: THEMES[th].text, border: `1.5px solid ${activeCarousel.theme === th ? "#22c55e" : THEMES[th].border}`, fontSize: 9, fontFamily: "sans-serif", letterSpacing: 1 }}>
-                      {THEMES[th].label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Paletas completas */}
-              <div style={{ marginBottom: 16 }}>
+            {/* ─ COLORES ─ */}
+            <Section title="Colores" defaultOpen>
+              {/* Paletas */}
+              <div style={{ marginBottom: 14 }}>
                 <p style={{ fontSize: 8, letterSpacing: "2px", color: "#444", fontFamily: "sans-serif", textTransform: "uppercase", marginBottom: 8 }}>Paletas</p>
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 5 }}>
                   {PALETTE_PRESETS.map(p => (
-                    <button key={p.name} onClick={() => uc({ accentColor: p.accent })}
+                    <button key={p.name} onClick={() => uc({ bgColor: p.bg, accentColor: p.accent })}
                       title={p.name}
-                      style={{ width: 28, height: 28, borderRadius: 6, background: p.bg, border: `2px solid ${p.accent}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      style={{ width: 30, height: 30, borderRadius: 6, background: p.bg, border: `2px solid ${activeCarousel.accentColor === p.accent && activeCarousel.bgColor === p.bg ? "#22c55e" : p.accent}`, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                       <span style={{ width: 10, height: 10, borderRadius: "50%", background: p.accent, display: "block" }} />
                     </button>
                   ))}
                 </div>
               </div>
 
+              {/* Color fondo */}
+              <div style={{ marginBottom: 14 }}>
+                <p style={{ fontSize: 8, letterSpacing: "2px", color: "#444", fontFamily: "sans-serif", textTransform: "uppercase", marginBottom: 8 }}>Color de fondo</p>
+                <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+                  <input type="color" value={activeCarousel.bgColor ?? "#080808"} onChange={e => uc({ bgColor: e.target.value })}
+                    style={{ width: 36, height: 36, borderRadius: 8, border: "0.5px solid #222", cursor: "pointer", padding: 2, background: "transparent" }} />
+                  <span style={{ fontSize: 11, fontFamily: "monospace", color: "#444" }}>{(activeCarousel.bgColor ?? "#080808").toUpperCase()}</span>
+                  <input type="color" value={activeCarousel.bgGradientEnd ?? "#111827"} onChange={e => uc({ bgGradientEnd: e.target.value })}
+                    style={{ width: 36, height: 36, borderRadius: 8, border: "0.5px solid #222", cursor: "pointer", padding: 2, background: "transparent" }} title="Color 2 (gradiente)" />
+                  <span style={{ fontSize: 9, color: "#333", fontFamily: "sans-serif" }}>→ 2</span>
+                </div>
+              </div>
+
               {/* Color acento */}
               <div style={{ marginBottom: 0 }}>
                 <p style={{ fontSize: 8, letterSpacing: "2px", color: "#444", fontFamily: "sans-serif", textTransform: "uppercase", marginBottom: 8 }}>Color acento</p>
-                <div style={{ display: "flex", gap: 6, alignItems: "center", flexWrap: "wrap" }}>
+                <div style={{ display: "flex", gap: 5, alignItems: "center", flexWrap: "wrap" }}>
                   {ACCENT_PRESETS.map(c => (
                     <button key={c} onClick={() => uc({ accentColor: c })}
-                      style={{ width: 22, height: 22, borderRadius: "50%", background: c, border: `2.5px solid ${activeCarousel.accentColor === c ? "#f5f5f5" : "transparent"}`, cursor: "pointer", transition: "transform 0.1s", transform: activeCarousel.accentColor === c ? "scale(1.2)" : "scale(1)" }} />
+                      style={{ width: 20, height: 20, borderRadius: "50%", background: c, border: `2px solid ${activeCarousel.accentColor === c ? "#f5f5f5" : "transparent"}`, cursor: "pointer", transition: "transform 0.1s", transform: activeCarousel.accentColor === c ? "scale(1.25)" : "scale(1)", flexShrink: 0 }} />
                   ))}
                   <input type="color" value={activeCarousel.accentColor} onChange={e => uc({ accentColor: e.target.value })}
-                    style={{ width: 22, height: 22, borderRadius: "50%", border: "2px dashed #333", cursor: "pointer", padding: 0, background: "transparent" }} title="Color libre" />
+                    style={{ width: 20, height: 20, borderRadius: "50%", border: "2px dashed #333", cursor: "pointer", padding: 0, background: "transparent" }} title="Color libre" />
                 </div>
+              </div>
+            </Section>
+
+            {/* ─ FONDO ─ */}
+            <Section title="Fondo" defaultOpen={false}>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 5 }}>
+                {BG_STYLES.map(s => (
+                  <button key={s.id} onClick={() => uc({ bgStyle: s.id })}
+                    style={{ padding: "8px 4px", borderRadius: 6, cursor: "pointer", border: `0.5px solid ${(activeCarousel.bgStyle ?? "solid") === s.id ? "rgba(34,197,94,0.4)" : "#1a1a1a"}`, background: (activeCarousel.bgStyle ?? "solid") === s.id ? "rgba(34,197,94,0.08)" : "transparent", display: "flex", flexDirection: "column", alignItems: "center", gap: 4 }}>
+                    <span style={{ fontSize: 14, color: (activeCarousel.bgStyle ?? "solid") === s.id ? "#4ade80" : "#555" }}>{s.icon}</span>
+                    <span style={{ fontSize: 8, fontFamily: "sans-serif", letterSpacing: 1, color: (activeCarousel.bgStyle ?? "solid") === s.id ? "#4ade80" : "#444", textTransform: "uppercase" }}>{s.label}</span>
+                  </button>
+                ))}
+              </div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 12 }}>
+                <Toggle label="Línea acento arriba" on={activeCarousel.accentLine} onChange={v => uc({ accentLine: v })} />
+                <Toggle label="Línea acento abajo"  on={activeCarousel.accentLineBottom ?? false} onChange={v => uc({ accentLineBottom: v })} />
               </div>
             </Section>
 
@@ -673,7 +879,6 @@ function CarouselStudioInner() {
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 <Toggle label="Label" sub="Indicador superior" on={activeCarousel.showLabel ?? true} onChange={v => uc({ showLabel: v })} />
                 <Toggle label="Footer CTA" sub="Separador + texto abajo" on={activeCarousel.showFooter ?? true} onChange={v => uc({ showFooter: v })} />
-                <Toggle label="Línea de acento" sub="Franja superior de color" on={activeCarousel.accentLine} onChange={v => uc({ accentLine: v })} />
               </div>
             </Section>
 
@@ -715,7 +920,7 @@ function CarouselStudioInner() {
               </div>
 
               {/* CTA */}
-              <div>
+              <div style={{ marginBottom: 14 }}>
                 <p style={{ fontSize: 8, letterSpacing: "2px", color: "#444", fontFamily: "sans-serif", textTransform: "uppercase", marginBottom: 6 }}>Footer CTA</p>
                 <input value={activeSlide.cta} onChange={e => updateSlide({ ...activeSlide, cta: e.target.value })}
                   style={{ width: "100%", background: "transparent", border: "none", borderBottom: "0.5px solid #1a1a1a", padding: "7px 0", color: "#f5f5f5", fontSize: 11, fontFamily: "monospace", letterSpacing: 2, outline: "none", boxSizing: "border-box", marginBottom: 6 }} />
@@ -725,6 +930,30 @@ function CarouselStudioInner() {
                       style={{ fontSize: 7, padding: "3px 7px", borderRadius: 4, background: "transparent", border: "0.5px solid #1a1a1a", color: "#444", cursor: "pointer", letterSpacing: 1, fontFamily: "monospace" }}>{s}</button>
                   ))}
                 </div>
+              </div>
+
+              {/* Elementos del slide */}
+              <div style={{ borderTop: "0.5px solid #111", paddingTop: 14 }}>
+                <p style={{ fontSize: 8, letterSpacing: "2px", color: "#444", fontFamily: "sans-serif", textTransform: "uppercase", marginBottom: 12 }}>Elementos extra</p>
+
+                {/* Badge */}
+                <div style={{ marginBottom: 12 }}>
+                  <p style={{ fontSize: 9, color: "#333", fontFamily: "sans-serif", marginBottom: 5 }}>Badge / chip</p>
+                  <input value={activeSlide.badge ?? ""} onChange={e => updateSlide({ ...activeSlide, badge: e.target.value })}
+                    placeholder="🔥 DATO CLAVE  ·  NUEVO  ·  CASO REAL"
+                    style={{ width: "100%", background: "transparent", border: "none", borderBottom: "0.5px solid #1a1a1a", padding: "6px 0", color: "#f5f5f5", fontSize: 11, fontFamily: "sans-serif", outline: "none", boxSizing: "border-box" }} />
+                </div>
+
+                {/* Stat */}
+                <div style={{ marginBottom: 12 }}>
+                  <p style={{ fontSize: 9, color: "#333", fontFamily: "sans-serif", marginBottom: 5 }}>Número / stat grande</p>
+                  <input value={activeSlide.stat ?? ""} onChange={e => updateSlide({ ...activeSlide, stat: e.target.value })}
+                    placeholder="73%  ·  x3  ·  #1  ·  30 días"
+                    style={{ width: "100%", background: "transparent", border: "none", borderBottom: "0.5px solid #1a1a1a", padding: "6px 0", color: "#f5f5f5", fontSize: 11, fontFamily: "monospace", outline: "none", boxSizing: "border-box" }} />
+                </div>
+
+                {/* Quote style */}
+                <Toggle label="Estilo cita" sub="Comillas + barra lateral en subtítulo" on={activeSlide.quoteStyle ?? false} onChange={v => updateSlide({ ...activeSlide, quoteStyle: v })} />
               </div>
             </Section>
 
@@ -743,6 +972,11 @@ function CarouselStudioInner() {
                   </div>
                 )}
                 <Toggle label="Logo de marca" sub="Esquina superior derecha" on={activeCarousel.showLogo} onChange={v => uc({ showLogo: v })} />
+                {activeCarousel.showLogo && (
+                  <input value={activeCarousel.logoText ?? "NOVA"} onChange={e => uc({ logoText: e.target.value })}
+                    placeholder="NOVA"
+                    style={{ width: "100%", background: "transparent", border: "none", borderBottom: "0.5px solid #1a1a1a", padding: "6px 0", color: "#f5f5f5", fontSize: 12, fontFamily: "sans-serif", outline: "none", boxSizing: "border-box" }} />
+                )}
               </div>
             </Section>
 
@@ -765,6 +999,7 @@ function CarouselStudioInner() {
             </div>
           </div>
         </div>
+        </>
       ) : (
         <div style={{ ...card, padding: "56px 32px", textAlign: "center", marginBottom: 32 }}>
           <p style={{ fontSize: 40, marginBottom: 16 }}>🎠</p>
@@ -852,7 +1087,7 @@ function CarouselStudioInner() {
                               style={{ padding: "4px 11px", borderRadius: 5, background: "rgba(34,197,94,0.06)", border: "0.5px solid rgba(34,197,94,0.15)", color: "#22c55e", fontSize: 10, cursor: "pointer", fontFamily: "sans-serif" }}>
                               JSON
                             </button>
-                            <button onClick={() => { if (confirm(`¿Eliminar "${c.name}"?`)) deleteCarousel(c.id) }}
+                            <button onClick={() => setConfirmDlg({ msg: `¿Eliminar "${c.name}"?`, onOk: () => deleteCarousel(c.id) })}
                               style={{ padding: "4px 10px", borderRadius: 5, background: "transparent", border: "0.5px solid rgba(239,68,68,0.15)", color: "#ef4444", fontSize: 10, cursor: "pointer" }}>
                               ✕
                             </button>
@@ -866,15 +1101,12 @@ function CarouselStudioInner() {
           </div>
         )}
 
-        <div style={{ padding: "14px 20px", borderTop: "0.5px solid #0d0d0d", background: "rgba(34,197,94,0.015)" }}>
-          <p style={{ fontSize: 8, letterSpacing: "2px", textTransform: "uppercase", color: "#333", fontFamily: "sans-serif", marginBottom: 6 }}>Para generar PNG en alta resolución (1080×1350)</p>
-          <p style={{ fontSize: 11, fontFamily: "monospace", color: "#333", lineHeight: 1.9 }}>
-            1. Exportá el JSON → 2. <span style={{ color: "#22c55e" }}>pnpm add puppeteer</span> (primera vez) → 3. <span style={{ color: "#22c55e" }}>node scripts/build-carousel.js --file=carrusel-nombre.json</span>
-          </p>
+        <div style={{ padding: "12px 20px", borderTop: "0.5px solid #0d0d0d" }}>
+          <p style={{ fontSize: 9, fontFamily: "sans-serif", color: "#2a2a2a", letterSpacing: 0.5 }}>Los PNG se exportan a 1080×1350px · Seleccioná slides individuales para ZIP parcial</p>
         </div>
       </div>
 
-      {/* ── Hidden full-size for PNG export ─────────────────────── */}
+      {/* ── Hidden full-size for single PNG export ───────────────── */}
       <div style={{ position: "fixed", left: -99999, top: 0, pointerEvents: "none", zIndex: -1 }}>
         <div ref={hiddenRef} style={{ width: 1080, height: 1350 }}>
           {activeCarousel && activeSlide && (
@@ -882,6 +1114,37 @@ function CarouselStudioInner() {
           )}
         </div>
       </div>
+
+      {/* ── Hidden batch render for ZIP export ───────────────────── */}
+      <div style={{ position: "fixed", left: -199999, top: 0, pointerEvents: "none", zIndex: -1 }}>
+        {activeCarousel?.slides.map((slide, i) => (
+          <div key={slide.id} ref={el => { batchRefs.current[i] = el }} style={{ width: 1080, height: 1350 }}>
+            <SlideRender slide={slide} carousel={activeCarousel} scale={1} />
+          </div>
+        ))}
+      </div>
+
+      {/* ── Confirm Dialog ──────────────────────────────────────── */}
+      {confirmDlg && (
+        <div style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", zIndex: 2000, display: "flex", alignItems: "center", justifyContent: "center" }}
+          onClick={() => setConfirmDlg(null)}>
+          <div style={{ background: "#0d0d0d", border: "0.5px solid #1a1a1a", borderRadius: 12, padding: "32px 32px 24px", maxWidth: 360, width: "90%", boxShadow: "0 16px 64px rgba(0,0,0,0.8)" }}
+            onClick={e => e.stopPropagation()}>
+            <p style={{ fontSize: 8, fontFamily: "sans-serif", fontWeight: 500, letterSpacing: "3px", textTransform: "uppercase", color: "#ef4444", marginBottom: 16 }}>Confirmar</p>
+            <p style={{ fontSize: 14, fontFamily: "sans-serif", fontWeight: 300, color: "#f5f5f5", lineHeight: 1.6, marginBottom: 28 }}>{confirmDlg.msg}</p>
+            <div style={{ display: "flex", gap: 10, justifyContent: "flex-end" }}>
+              <button onClick={() => setConfirmDlg(null)}
+                style={{ padding: "8px 20px", borderRadius: 7, background: "transparent", border: "0.5px solid #222", color: "#666", fontSize: 12, fontFamily: "sans-serif", cursor: "pointer" }}>
+                Cancelar
+              </button>
+              <button onClick={() => { confirmDlg.onOk(); setConfirmDlg(null) }}
+                style={{ padding: "8px 20px", borderRadius: 7, background: "rgba(239,68,68,0.15)", border: "0.5px solid rgba(239,68,68,0.4)", color: "#ef4444", fontSize: 12, fontFamily: "sans-serif", fontWeight: 600, cursor: "pointer" }}>
+                Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Fullscreen ───────────────────────────────────────────── */}
       {fullscreen && activeCarousel && activeSlide && (
